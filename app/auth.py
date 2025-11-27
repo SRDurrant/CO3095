@@ -90,7 +90,7 @@ def validate_new_password(password: str, confirm: Optional[str] = None) -> Tuple
         return False, "Password must be at least 8 characters long"
 
     if confirm is not None and password != confirm:
-        return False, "Password and confirm must match"
+        return False, "Passwords must match"
 
     return True, "Password valid"
 
