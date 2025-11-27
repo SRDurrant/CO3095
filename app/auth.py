@@ -5,22 +5,56 @@ Authentication and registration logic for US21
 from typing import Callable, Tuple, Optional, List, Dict
 from .data_store import get_users, add_user
 
+
 def find_user_by_username(users: List[Dict], username: str):
-    """returns the user dict if the username exists already, if it doesn't None"""
+    """
+    Find a user by username
+
+    Inputs:
+        users (List[Dict]): list of users dictionaries
+        username (str): the username to search for
+
+    Returns:
+        Optional[Dict]: The matched user dictionary if found, else None
+    """
+
     for user in users:
         if user['username'] == username:
             return user
     return None
 
+
 def get_next_user_id(users: List[Dict]) -> int:
-    """returns the next user id if it exists, else return None"""
+    """
+    Gets the next available user ID based on the exisiting users
+
+    Inputs:
+        users (List[Dict]): list of users dictionaries
+
+    Returns:
+        int: next available user ID, assigned as max(existing IDs) + 1 or 1 if the list is empty
+    """
+
     if not users:
         return 1
     existing_ids = [u.get("user_id", 0) for u in users]
     return max(existing_ids) + 1
 
+
 def validate_new_username(users: List[Dict], username: str) -> Tuple[bool, str]:
-    """validates the username exists, if it doesn't exist, return False and a message"""
+    """
+    Validate the username rules for registration
+
+    Inputs:
+        users (List[Dict]): list of users dictionaries
+        username (str): the username provided by the user
+
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if the username is valid, False otherwise
+            - str: "Username Valid" or the error message describing the failure reason
+    """
+
     if not username or username.strip() == "":
         return False, "Username cannot be empty"
 
@@ -34,8 +68,20 @@ def validate_new_username(users: List[Dict], username: str) -> Tuple[bool, str]:
 
     return True, "Username valid"
 
+
 def validate_new_password(password: str, confirm: Optional[str] = None) -> Tuple[bool, str]:
-    """validates the password of the user"""
+    """
+    Validate the password rules for registration
+
+    Inputs:
+        password (str): the password provided by the user
+        confirm (Optional[str]): confirm the password provided by the user
+
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if the password is valid, False otherwise
+            - str: "Password Valid" or the error message describing the failure reason
+    """
 
     if not password:
         return False, "Password cannot be empty"
@@ -48,20 +94,35 @@ def validate_new_password(password: str, confirm: Optional[str] = None) -> Tuple
 
     return True, "Password valid"
 
+
 def register_user(
         input_func: Callable[[str], str] = input,
         print_func: Callable[[str], None] = print
-):
+) -> Tuple[bool, object]:
     """
     Register for a new user and them to the global list of users
 
+    Inputs:
+        input_func(Callable[[str], str]): function that takes a username and a password and returns a boolean
+        print_func(Callable[[str], None]): function that prints a message
+
     Returns:
-        (True, user_dict) on success
-        (False, error_message) on failure
+        Tuple[bool, object]:
+            - True, user_dict (Dict) on a successful registration
+            Example user_dict:
+                {
+                "user_id": int,
+                "username": str,
+                "password": str,
+                "role": str
+                }
+            - False, error_message (str) on failure
     """
+
     users = get_users()
 
     print_func("User Registration")
+
     username = input_func("Enter your Username: ").strip()
     is_valid, msg = validate_new_username(users, username)
     if not is_valid:
