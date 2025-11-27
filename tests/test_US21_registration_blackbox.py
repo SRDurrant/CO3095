@@ -1,5 +1,5 @@
 """
-White-box testing for US21 - User Registration
+Black-box testing for US21 - User Registration
 
 These tests simulate the user interactions with the system by fake input functions and
 capture printed output via a fake print function.
@@ -52,8 +52,8 @@ def test_reg_success():
     )
 
     assert success is True
-    assert isinstance(results, dict)
-    assert results["username"] == "new-user"
+    assert isinstance(result, dict)
+    assert result["username"] == "new-user"
     assert any("Registration Successful" in line for line in outputs)
 
 
@@ -81,6 +81,7 @@ def test_reg_fail_short_username():
 
     assert success is False
     assert "Username must be at least 5 characters long" in results
+
 
 def test_reg_fail_duplicate_username():
     """
