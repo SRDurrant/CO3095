@@ -16,8 +16,8 @@ def get_next_user_id(users: List[Dict]) -> int:
     """returns the next user id if it exists, else return None"""
     if not users:
         return 1
-    exisiting_ids = [u.get("user_id", 0) for u in users]
-    return max(exisiting_ids) + 1
+    existing_ids = [u.get("user_id", 0) for u in users]
+    return max(existing_ids) + 1
 
 def validate_new_username(users: List[Dict], username: str) -> Tuple[bool, str]:
     """validates the username exists, if it doesn't exist, return False and a message"""
@@ -29,7 +29,7 @@ def validate_new_username(users: List[Dict], username: str) -> Tuple[bool, str]:
     if len(username) < 5:
         return False, "Username must be at least 5 characters long"
 
-    if find_user_by_username(users, username) if not None:
+    if find_user_by_username(users, username) is not None:
         return False, "Username already exists"
 
     return True, "Username valid"
