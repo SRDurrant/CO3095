@@ -26,7 +26,7 @@ def find_user_by_username(users: List[Dict], username: str):
 
 def get_next_user_id(users: List[Dict]) -> int:
     """
-    Gets the next available user ID based on the exisiting users
+    Gets the next available user ID based on the existing users
 
     Inputs:
         users (List[Dict]): list of users dictionaries
