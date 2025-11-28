@@ -5,7 +5,7 @@ User Stories included so far:
  - US21 - User Registration
 """
 
-from app.auth import register_user
+from app.auth import register_user, login_user
 from app.data_store import get_users, example_users
 
 
@@ -23,7 +23,7 @@ def show_main_menu():
     print("\nWelcome to the School Evaluation Platform App")
     print("1. Register new User")
     print("2. Display Registered Users (debug)")
-    print("3. Login (Not yet available)") # Will be implemented in US22
+    print("3. Login")
     print("0. Exit")
 
 
@@ -76,6 +76,9 @@ def main() -> None:
         elif choice == "2":
             # Shows all users currently stored in the system
             list_users_debug()
+
+        elif choice == "3":
+            login_user()
 
         elif choice == "0":
             print("Thank you for using School Evaluation Platform")

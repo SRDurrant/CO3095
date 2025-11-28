@@ -174,18 +174,30 @@ def login_user(
         print_func("No users are registered yet. Please register first")
         return False, "No registered users"
 
-    username = input_func("Enter your Username: ").strip()
-    user = find_user_by_username(users, username)
+    while True:
+        print_func("\nEnter your Login details: ")
+        print_func("Type '0' at any prompt to return to the main menu")
 
-    if user is None:
-        print_func("Username not found")
-        return False, "Username not found"
+        username = input_func("Enter your Username: ").strip()
+        if username == "0":
+            print_func("Returning to the main menu without logging in")
+            return False, "Login cancelled"
 
-    password = input_func("Enter your Password: ")
+        user = find_user_by_username(users, username)
+        if user is None:
+            print_func("Login failed: Username not found")
+            # Keeps the user in the loop and lets them try again
+            continue
 
-    if password != user.get("password"):
-        print_func("incorrect password")
-        return False, "Incorrect password"
+        password = input_func("Enter your Password: ")
+        if password == "0":
+            print_func("Returning to the main menu without logging in")
+            return False, "Login cancelled"
 
-    print_func("Login Successful, Welcome back {}".format(username))
-    return True, user
+        if password != user.get("password"):
+            print_func("Login failed: Incorrect password")
+            # Keeps the user in the loop and lets them try again
+            continue
+
+        print_func("Login successful, welcome {}".format(username))
+        return True, user
