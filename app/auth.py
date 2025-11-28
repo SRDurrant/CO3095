@@ -171,7 +171,7 @@ def login_user(
     print_func("User Login")
 
     if not users:
-        print_func("No users are registered yet. Please register first")
+        print_func("No registered users. Please register first")
         return False, "No registered users"
 
     while True:
