@@ -6,7 +6,7 @@ User Stories included so far:
 """
 
 from app.auth import register_user, login_user
-from app.data_store import get_users, example_users
+from app.data_store import get_users, example_users, get_current_user, clear_current_user
 
 
 def show_main_menu():
@@ -20,10 +20,21 @@ def show_main_menu():
         None
     """
 
+    current = get_current_user()
+
     print("\nWelcome to the School Evaluation Platform App")
+
+    if current:
+        print(f"Logged in as {current.get('username')}")
+
     print("1. Register new User")
     print("2. Display Registered Users (debug)")
-    print("3. Login")
+
+    if current is None:
+        print("3. Login")
+    else:
+        print("3. Logout")
+
     print("0. Exit")
 
 
@@ -69,8 +80,10 @@ def main() -> None:
     while True:
         show_main_menu()
         choice = input("Select an option: ").strip()
+        current = get_current_user()
 
         if choice == "1":
+            #US21 - User Registration
             register_user()
 
         elif choice == "2":
@@ -78,14 +91,20 @@ def main() -> None:
             list_users_debug()
 
         elif choice == "3":
-            login_user()
+            if current is None:
+                # US23 - Log in Feature
+                login_user()
+            else:
+                # US23 - Log out feature
+                clear_current_user()
+                print("\nYou have been logged out")
 
         elif choice == "0":
-            print("Thank you for using School Evaluation Platform")
+            print("\nThank you for using School Evaluation Platform")
             break
 
         else:
-            print("Invalid option, please select an option shown")
+            print("\nInvalid option, please select an option shown")
 
 
 if __name__ == "__main__":

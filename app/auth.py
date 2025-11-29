@@ -168,36 +168,40 @@ def login_user(
 
     users = get_users()
 
-    print_func("User Login")
+    print_func("\nUser Login")
 
     if not users:
-        print_func("No registered users. Please register first")
-        return False, "No registered users"
+        print_func("\nNo registered users. Please register first")
+        return False, "\nNo registered users"
 
     while True:
-        print_func("\nEnter your Login details: ")
+        print_func("\nEnter your Login details")
         print_func("Type '0' at any prompt to return to the main menu")
 
         username = input_func("Enter your Username: ").strip()
         if username == "0":
-            print_func("Returning to the main menu without logging in")
-            return False, "Login cancelled"
+            print_func("\nReturning to the main menu without logging in")
+            return False, "\nLogin cancelled"
 
         user = find_user_by_username(users, username)
         if user is None:
-            print_func("Login failed: Username not found")
+            print_func("\nLogin failed: Username not found")
             # Keeps the user in the loop and lets them try again
             continue
 
         password = input_func("Enter your Password: ")
         if password == "0":
-            print_func("Returning to the main menu without logging in")
-            return False, "Login cancelled"
+            print_func("\nReturning to the main menu without logging in")
+            return False, "\nLogin cancelled"
 
         if password != user.get("password"):
-            print_func("Login failed: Incorrect password")
+            print_func("\nLogin failed: Incorrect password")
             # Keeps the user in the loop and lets them try again
             continue
 
-        print_func("Login successful, welcome {}".format(username))
+        # if log in is successful
+        from .data_store import set_current_user
+        set_current_user(user)
+
+        print_func("\nLogin successful, welcome {}".format(username))
         return True, user

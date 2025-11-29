@@ -65,9 +65,6 @@ def example_users() -> None:
     )
 
 
-
-
-
 CURRENT_USER = None
 
 def set_current_user(user: Dict) -> None:
