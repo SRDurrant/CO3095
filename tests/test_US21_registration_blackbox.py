@@ -76,11 +76,11 @@ def test_reg_fail_short_username():
     """
 
     success, results, outputs = run_reg_with_inputs(
-        ["new", "password123", "password123"]
+        ["us", "password123", "password123"]
     )
 
     assert success is False
-    assert "Username must be at least 5 characters long" in results
+    assert "Username must be at least 3 characters long" in results
 
 
 def test_reg_fail_duplicate_username():

@@ -7,7 +7,7 @@ User Stories included so far:
 
 from app.auth import register_user, login_user
 from app.data_store import get_users, example_users, get_current_user, clear_current_user
-
+from app.validation import validate_menu_option_format
 
 def show_main_menu():
     """
@@ -80,6 +80,14 @@ def main() -> None:
     while True:
         show_main_menu()
         choice = input("Select an option: ").strip()
+
+        allowed_options = ["1", "2", "3", "0"]
+
+        valid, msg = validate_menu_option_format(choice, allowed_options)
+        if not valid:
+            print(msg)
+            continue
+
         current = get_current_user()
 
         if choice == "1":
@@ -102,9 +110,6 @@ def main() -> None:
         elif choice == "0":
             print("\nThank you for using School Evaluation Platform")
             break
-
-        else:
-            print("\nInvalid option, please select an option shown")
 
 
 if __name__ == "__main__":
