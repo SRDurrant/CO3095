@@ -63,3 +63,52 @@ def example_users() -> None:
             "role": "student"
         }
     )
+
+
+
+
+
+CURRENT_USER = None
+
+def set_current_user(user: Dict) -> None:
+    """
+    Sets the current user
+
+    Inputs:
+        user (Dict): A dictionary containing user data
+
+    Returns:
+        None
+    """
+
+    global CURRENT_USER
+    CURRENT_USER = user
+
+
+def get_current_user() -> Dict:
+    """
+    Gets the current user logged in
+
+    Inputs:
+        None
+
+    Returns:
+        dict | None: A dictionary containing user data, or None if no one is logged in
+    """
+
+    return CURRENT_USER
+
+
+def clear_current_user() -> None:
+    """
+    Log out the current user and clear the session
+
+    Inputs:
+        None
+
+    Returns:
+        dict | None: THe current user dictionary, or None if no one is logged in
+    """
+
+    global CURRENT_USER
+    CURRENT_USER = None
