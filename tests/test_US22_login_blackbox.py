@@ -49,7 +49,7 @@ def test_login_no_users_registered():
     success, result, outputs = run_login_with_inputs([], ["any-user", "any-password"])
 
     assert success is False
-    assert result == "No registered users"
+    assert result == "\nNo registered users"
     assert any("No registered users" in line for line in outputs)
 
 
@@ -70,7 +70,7 @@ def test_login_unknown_username_then_cancel():
     )
 
     assert success is False
-    assert result == "Login cancelled"
+    assert result == "\nLogin cancelled"
     assert any("Username not found" in line for line in outputs)
     assert any("Returning to the main menu" in line for line in outputs)
 
@@ -91,7 +91,7 @@ def test_login_wrong_password_then_cancel():
     )
 
     assert success is False
-    assert result == "Login cancelled"
+    assert result == "\nLogin cancelled"
     assert any("Incorrect password" in line for line in outputs)
     assert any("Returning to the main menu" in line for line in outputs)
 
@@ -133,5 +133,5 @@ def test_login_user_cancels_immediately():
     )
 
     assert success is False
-    assert result == "Login cancelled"
+    assert result == "\nLogin cancelled"
     assert any("Returning to the main menu" in line for line in outputs)
