@@ -43,7 +43,7 @@ def test_branch_no_users():
     success, result = login_user(input_func = fake_input, print_func = fake_prints)
 
     assert success is False
-    assert result == "No registered users"
+    assert result == "\nNo registered users"
     assert any("No registered users" in line for line in outputs)
 
 
@@ -69,7 +69,7 @@ def test_branch_cancel_at_username():
     success, result = login_user(input_func = fake_input, print_func = fake_prints)
 
     assert success is False
-    assert result == "Login cancelled"
+    assert result == "\nLogin cancelled"
     assert any("Returning to the main menu" in line for line in outputs)
 
 
@@ -99,7 +99,7 @@ def test_branch_username_not_found_then_cancel():
     success, result = login_user(input_func = fake_input, print_func = fake_prints)
 
     assert success is False
-    assert result == "Login cancelled"
+    assert result == "\nLogin cancelled"
     assert any("Username not found" in line for line in outputs)
 
 
@@ -129,7 +129,7 @@ def test_branch_invalid_password_then_cancel():
     success, result = login_user(input_func=fake_input, print_func=fake_prints)
 
     assert success is False
-    assert result == "Login cancelled"
+    assert result == "\nLogin cancelled"
     assert any("Incorrect password" in line for line in outputs)
 
 
