@@ -147,3 +147,57 @@ def register_user(
 
     print_func("Registration Successful: Welcome {}".format(username))
     return True, new_user
+
+
+def login_user(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> Tuple[bool, object]:
+    """
+    Login for a existing user by checking their username and password
+
+    Inputs:
+        input_func(Callable[[str], str]): function that is used to recieve a username and a password
+        print_func(Callable[[str], None]): function that prints a message
+
+    Returns:
+        Tuple[bool, object]:
+            - True, user_dict (Dict) on a successful login
+            - False, error_message (str) on failure
+    """
+
+    users = get_users()
+
+    print_func("User Login")
+
+    if not users:
+        print_func("No registered users. Please register first")
+        return False, "No registered users"
+
+    while True:
+        print_func("\nEnter your Login details: ")
+        print_func("Type '0' at any prompt to return to the main menu")
+
+        username = input_func("Enter your Username: ").strip()
+        if username == "0":
+            print_func("Returning to the main menu without logging in")
+            return False, "Login cancelled"
+
+        user = find_user_by_username(users, username)
+        if user is None:
+            print_func("Login failed: Username not found")
+            # Keeps the user in the loop and lets them try again
+            continue
+
+        password = input_func("Enter your Password: ")
+        if password == "0":
+            print_func("Returning to the main menu without logging in")
+            return False, "Login cancelled"
+
+        if password != user.get("password"):
+            print_func("Login failed: Incorrect password")
+            # Keeps the user in the loop and lets them try again
+            continue
+
+        print_func("Login successful, welcome {}".format(username))
+        return True, user
