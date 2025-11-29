@@ -4,6 +4,7 @@ Authentication and registration logic for US21
 
 from typing import Callable, Tuple, Optional, List, Dict
 from .data_store import get_users, add_user
+from .validation import validate_username_format, validate_password_format
 
 
 def find_user_by_username(users: List[Dict], username: str):
@@ -55,15 +56,13 @@ def validate_new_username(users: List[Dict], username: str) -> Tuple[bool, str]:
             - str: "Username Valid" or the error message describing the failure reason
     """
 
-    if not username or username.strip() == "":
-        return False, "Username cannot be empty"
+    is_valid_format, msg = validate_username_format(username)
+    if not is_valid_format:
+        return False, msg
 
-    username = username.strip()
+    cleaned = username.strip()
 
-    if len(username) < 5:
-        return False, "Username must be at least 5 characters long"
-
-    if find_user_by_username(users, username) is not None:
+    if find_user_by_username(users, cleaned) is not None:
         return False, "Username already exists"
 
     return True, "Username valid"
@@ -83,11 +82,9 @@ def validate_new_password(password: str, confirm: Optional[str] = None) -> Tuple
             - str: "Password Valid" or the error message describing the failure reason
     """
 
-    if not password:
-        return False, "Password cannot be empty"
-
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters long"
+    is_valid, msg = validate_password_format(password)
+    if not is_valid:
+        return False, msg
 
     if confirm is not None and password != confirm:
         return False, "Passwords must match"

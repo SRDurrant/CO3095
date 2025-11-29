@@ -77,9 +77,9 @@ def test_validate_new_username_short():
     """
 
     users = []
-    is_valid, msg = validate_new_username(users, "new")
+    is_valid, msg = validate_new_username(users, "us")
     assert is_valid is False
-    assert "Username must be at least 5 characters long" in msg
+    assert "Username must be at least 3 characters long" in msg
 
 
 def test_validate_new_username_duplicates():
