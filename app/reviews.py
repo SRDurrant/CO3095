@@ -1,23 +1,21 @@
 """
 Ratings and reviews logic for schools.
 
-Implements US14 (Rate a School) for Sprint 1.
-Later user stories (comments, favourites) can reuse this module.
+Implements:
+    - US14: Rate a School
+    - US15: Add a Comment to a School
+
+Later user stories (US18 - View Comments, favourites, etc.) can reuse
+the data structures defined here.
 """
 
 from typing import Callable, Tuple, List, Dict, Optional
+from datetime import datetime
 from .data_store import get_current_user
 from .validation import validate_rating_input
 
-# Global in-memory list of rating dictionaries.
-# Each rating has the structure:
-# {
-#     "user_id": int,
-#     "school_id": str,
-#     "value": int
-# }
 RATINGS: List[Dict] = []
-
+COMMENTS: List[Dict] = []
 
 def clear_ratings() -> None:
     """
@@ -77,6 +75,47 @@ def set_rating(user_id: int, school_id: str, value: int) -> Dict:
     RATINGS.append(rating)
     return rating
 
+def clear_comments() -> None:
+    """
+    Clear all stored comments (primarily for testing purposes).
+
+    Inputs:
+        None
+
+    Returns:
+        None
+    """
+    COMMENTS.clear()
+
+
+def add_comment_record(user_id: int,
+                       school_id: str,
+                       text: str,
+                       created_at: Optional[datetime] = None) -> Dict:
+    """
+    Create a new comment entry and return it.
+
+    Inputs:
+        user_id (int): ID of the user adding the comment
+        school_id (str): ID of the school being commented on
+        text (str): Comment text (already validated)
+        created_at (datetime | None): Optional timestamp. If None, now() is used.
+
+    Returns:
+        dict: The created comment dictionary with keys:
+              'user_id', 'school_id', 'text', 'created_at'
+    """
+    if created_at is None:
+        created_at = datetime.utcnow()
+
+    comment = {
+        "user_id": user_id,
+        "school_id": school_id,
+        "text": text,
+        "created_at": created_at,
+    }
+    COMMENTS.append(comment)
+    return comment
 
 def rate_school(
     input_func: Callable[[str], str] = input,
@@ -106,15 +145,16 @@ def rate_school(
                 }
             - (False, error_message) on failure
     """
+
     current_user = get_current_user()
     if current_user is None:
         msg = "You must be logged in to rate a school"
         print_func(msg)
         return False, msg
-
     while True:
         print_func("\nRate a School")
         print_func("Type '0' at any prompt to return to the previous menu.")
+
         school_id = input_func("Enter the school ID to rate: ").strip()
         if school_id == "0":
             msg = "Rating cancelled by user"
@@ -124,10 +164,12 @@ def rate_school(
         if not school_id:
             print_func("School ID cannot be empty.")
             continue
-        break
 
+    
+        break
     while True:
         rating_input = input_func("Enter your rating (1-5): ")
+
         is_valid, validation_msg = validate_rating_input(rating_input)
         if not is_valid:
             print_func(validation_msg)
@@ -137,11 +179,100 @@ def rate_school(
                 msg = "Rating cancelled by user"
                 print_func(msg)
                 return False, msg
+            # Otherwise loop again and ask for rating_input.
             continue
 
+        # At this point we have a valid rating.
         value = int(rating_input.strip())
         rating = set_rating(current_user["user_id"], school_id, value)
 
         msg = f"Successfully rated school '{school_id}' with {value} stars."
         print_func(msg)
         return True, rating
+
+def add_comment(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+    max_length: int = 500,
+) -> Tuple[bool, object]:
+    """
+    Add a comment to a school for the currently logged-in user (US15).
+
+    This function will:
+        - ensure a user is logged in
+        - ask the user for a school identifier
+        - ask for a comment text
+        - validate the comment (non-empty, max_length)
+        - store the comment in COMMENTS with a timestamp
+
+    Inputs:
+        input_func (Callable[[str], str]): function used to obtain user input
+        print_func (Callable[[str], None]): function used to print messages
+        max_length (int): maximum allowed length for the comment text
+
+    Returns:
+        Tuple[bool, object]:
+            - (True, comment_dict) on success, where comment_dict is like:
+                {
+                    "user_id": int,
+                    "school_id": str,
+                    "text": str,
+                    "created_at": datetime
+                }
+            - (False, error_message) on failure
+    """
+
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to add a comment"
+        print_func(msg)
+        return False, msg
+
+    # Prompt for the school identifier.
+    while True:
+        print_func("\nAdd a Comment")
+        print_func("Type '0' at any prompt to return to the previous menu.")
+
+        school_id = input_func("Enter the school ID to comment on: ").strip()
+        if school_id == "0":
+            msg = "Comment cancelled by user"
+            print_func(msg)
+            return False, msg
+
+        if not school_id:
+            print_func("School ID cannot be empty.")
+            continue
+
+        break
+
+    # Prompt for the comment text.
+    while True:
+        raw_text = input_func("Enter your comment: ")
+        if raw_text is None:
+            raw_text = ""
+
+        stripped = raw_text.strip()
+
+        # Allow user to cancel from this prompt as well.
+        if stripped == "0":
+            msg = "Comment cancelled by user"
+            print_func(msg)
+            return False, msg
+
+        if stripped == "":
+            print_func("Comment cannot be empty.")
+            print_func("Type '0' to cancel or enter a non-empty comment.")
+        elif len(stripped) > max_length:
+            print_func(f"Comment must be at most {max_length} characters.")
+            print_func("Type '0' to cancel or enter a shorter comment.")
+        else:
+            # Valid comment text.
+            comment = add_comment_record(
+                user_id=current_user["user_id"],
+                school_id=school_id,
+                text=stripped,
+            )
+            msg = "Comment added successfully."
+            print_func(msg)
+            return True, comment
+        # If we reach this point, loop continues for another attempt.

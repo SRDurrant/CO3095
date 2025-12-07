@@ -2,9 +2,9 @@
 Global input validation helpers for the system
 
 Implements US31 - Global Input Validation
-- Username format validation
-- Password format validation
-- Menu option validation
+Username format validation
+Password format validation
+Menu option validation
 
 These helpers are used by modules to ensure consistent validation
 rules across the system

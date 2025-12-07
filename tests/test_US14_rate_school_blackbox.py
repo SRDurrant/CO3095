@@ -21,7 +21,6 @@ def run_rate_school_with_inputs(example_user, inputs):
             - result (dict | str)
             - outputs (list[str]): printed messages
     """
-
     clear_ratings()
     clear_current_user()
 
@@ -29,7 +28,6 @@ def run_rate_school_with_inputs(example_user, inputs):
         set_current_user(example_user)
 
     inputs_iter = iter(inputs)
-
     def fake_input(prompt: str) -> str:
         return next(inputs_iter, "")
 
@@ -76,8 +74,10 @@ def test_rate_school_success_new_rating():
     assert result["school_id"] == "SCH-123"
     assert result["value"] == 4
 
+    
     assert len(RATINGS) == 1
     assert any("Successfully rated" in line for line in outputs)
+
 
 def test_rate_school_cancel_from_school_prompt():
     """
@@ -91,6 +91,7 @@ def test_rate_school_cancel_from_school_prompt():
             "0",  
         ],
     )
+
     assert success is False
     assert "cancelled" in result
     assert len(RATINGS) == 0
@@ -106,7 +107,7 @@ def test_rate_school_invalid_rating_then_cancel():
     success, result, outputs = run_rate_school_with_inputs(
         example_user=user,
         inputs=[
-            "SCH-999",  
+            "SCH-999", 
             "abc",      
             "0",        
         ],
