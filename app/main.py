@@ -13,7 +13,7 @@ from app.auth import register_user, login_user
 from app.data_store import get_users, example_users, get_current_user, clear_current_user
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
-from app.admin_actions import list_all_users
+from app.admin_actions import list_all_users, delete_user_by_id
 
 def show_main_menu():
     """
@@ -43,6 +43,9 @@ def show_main_menu():
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("9. Display Registered Users (Admin Only)")
 
+    if current is not None and user_has_role(current, [ROLE_ADMIN]):
+        print("10. Delete Selected User (Admin Only)")
+
     print("0. Exit")
 
 
@@ -68,6 +71,7 @@ def main() -> None:
 
         if current is not None and user_has_role(current, [ROLE_ADMIN]):
             allowed_options.append("9")
+            allowed_options.append("10")
 
         choice = input("Select an option: ").strip()
 
@@ -94,6 +98,18 @@ def main() -> None:
             if not check_access(current, [ROLE_ADMIN], print_func=print):
                 continue
             list_all_users(print)
+
+        elif choice == "10":
+            if not check_access(current, [ROLE_ADMIN], print_func=print):
+                continue
+
+            try:
+                uid = int(input("Enter user ID to delete: "))
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+                continue
+
+            delete_user_by_id(uid, print)
 
         elif choice == "0":
             print("\nThank you for using School Evaluation Platform")
