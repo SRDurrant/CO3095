@@ -35,7 +35,6 @@ def test_branch_negative_number_path():
     assert is_valid is False
     assert "negative" in msg
 
-
 def test_branch_non_digit_path():
     """
     Branch: non-digit input that is not a valid negative integer.
@@ -43,7 +42,6 @@ def test_branch_non_digit_path():
     is_valid, msg = validate_rating_input("3.5")
     assert is_valid is False
     assert "whole number" in msg
-
 
 def test_branch_below_min_rating():
     """
@@ -53,7 +51,6 @@ def test_branch_below_min_rating():
     assert is_valid is False
     assert "at least 1" in msg
 
-
 def test_branch_above_max_rating():
     """
     Branch: parsed integer is above max_rating.
@@ -61,7 +58,6 @@ def test_branch_above_max_rating():
     is_valid, msg = validate_rating_input("10", min_rating=1, max_rating=5)
     assert is_valid is False
     assert "at most 5" in msg
-
 
 def test_branch_valid_path():
     """
