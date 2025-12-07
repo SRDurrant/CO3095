@@ -45,7 +45,6 @@ def test_add_comment_successful():
             "This is my comment.",
         ],
     )
-
     assert success is True
     assert isinstance(result, dict)
     assert result["user_id"] == 1
