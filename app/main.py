@@ -13,6 +13,7 @@ from app.auth import register_user, login_user
 from app.data_store import get_users, example_users, get_current_user, clear_current_user
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
+from app.admin_actions import list_all_users
 
 def show_main_menu():
     """
@@ -43,31 +44,6 @@ def show_main_menu():
         print("9. Display Registered Users (Admin Only)")
 
     print("0. Exit")
-
-
-def list_users_debug() -> None:
-    """
-    Displays the list of registered users
-
-    Inputs:
-        None
-
-    Returns:
-        None
-            Prints a list of the users registered (Temporary users)
-    """
-
-    users = get_users()
-    if not users:
-        print("No users registered")
-        return
-
-    print("\nRegistered Users:")
-    for user in users:
-        user_id = user.get("user_id", "?")
-        username = user.get("username", "?")
-        role = user.get("role", "?")
-        print(f" - ID: {user_id}, Username: {username}, Role: {role}")
 
 
 def main() -> None:
@@ -113,11 +89,11 @@ def main() -> None:
                 clear_current_user()
                 print("\nYou have been logged out")
 
+
         elif choice == "9":
-            # Shows all users currently stored in the system
             if not check_access(current, [ROLE_ADMIN], print_func=print):
                 continue
-            list_users_debug()
+            list_all_users(print)
 
         elif choice == "0":
             print("\nThank you for using School Evaluation Platform")
