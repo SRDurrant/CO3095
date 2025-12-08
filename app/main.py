@@ -7,7 +7,7 @@ User Stories included so far:
  - US23 - Session Handling
  - US31 - Global Session Handling
  - US25 - Role based access Control
- - US1  - Add a New School
+ - US1  - Create the Schools
 """
 
 from app.auth import register_user, login_user
@@ -99,7 +99,7 @@ def main() -> None:
                 print("\nYou have been logged out")
 
         elif choice == "3":
-            # US1 - Add a New School
+            # US1 - Create the Schools
             if not check_access(current, [ROLE_ADMIN], print_func=print):
                 continue
             add_new_school()
