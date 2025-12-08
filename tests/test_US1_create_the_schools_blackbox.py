@@ -120,7 +120,7 @@ def test_add_school_empty_level_choice():
     assert success is True
     schools = get_schools()
     assert len(schools) == 1
-    assert schools[0]["level"] == "5"
+    assert schools[0]["level"] == ""
 
 
 def test_add_school_empty_location():
