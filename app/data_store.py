@@ -1,10 +1,11 @@
 """
-Simple in-memory data store for US21
+Simple in-memory data store for US21,US1
 """
 
 from typing import List, Dict
 
 USERS: List[Dict] = []
+SCHOOLS: List[Dict] = []
 
 def get_users() -> List[Dict]:
     """
@@ -109,3 +110,48 @@ def clear_current_user() -> None:
 
     global CURRENT_USER
     CURRENT_USER = None
+
+
+def get_schools() -> List[Dict]:
+    """
+    Returns a list of all schools in the global list of schools
+
+    Returns:
+         List[Dict]: A list of all schools in the global list of schools
+    """
+
+    return SCHOOLS
+
+
+def add_school(school: Dict) -> None:
+    """
+    Adds a school to the global list of schools
+
+    Inputs:
+        school (Dict): A dictionary containing school data
+            {
+            "school_id": int,
+            "name": str,
+            "level": str,
+            "location": str
+            }
+    """
+
+    SCHOOLS.append(school)
+
+
+def get_next_school_id(schools: List[Dict]) -> int:
+    """
+    Gets the next available school ID based on the existing schools
+
+    Inputs:
+        schools (List[Dict]): list of school dictionaries
+
+    Returns:
+        int: next available school ID, 1 if the list is empty
+    """
+
+    if not schools:
+        return 1
+    active_ids = [s.get("school_id", 0) for s in schools]
+    return max(active_ids) + 1
