@@ -8,6 +8,7 @@ User Stories included so far:
  - US31 - Global Session Handling
  - US25 - Role based access Control
  - US1  - Create the Schools
+ - US6  - List All Schools
 """
 
 from app.auth import register_user, login_user
@@ -15,6 +16,7 @@ from app.data_store import get_users, example_users, get_current_user, clear_cur
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
 from app.admin_actions import list_all_users, delete_user_by_id, add_new_school
+from app.school_actions import list_all_schools
 
 def show_main_menu():
     """
@@ -44,6 +46,8 @@ def show_main_menu():
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("3. Add New School (Admin Only)")
 
+    print("4. View Schools")
+
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("9. Display Registered Users (Admin Only)")
 
@@ -71,7 +75,7 @@ def main() -> None:
         show_main_menu()
         current = get_current_user()
 
-        allowed_options = ["1", "2", "0"]
+        allowed_options = ["1", "2","4", "0"]
 
         if current is not None and user_has_role(current, [ROLE_ADMIN]):
             allowed_options.append("3")
@@ -103,6 +107,9 @@ def main() -> None:
             if not check_access(current, [ROLE_ADMIN], print_func=print):
                 continue
             add_new_school()
+
+        elif choice == "4":
+            list_all_schools()
 
         elif choice == "9":
             if not check_access(current, [ROLE_ADMIN], print_func=print):
