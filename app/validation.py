@@ -11,6 +11,15 @@ rules across the system
 """
 
 from typing import Tuple, List
+    """
+    Validate the format Of username is correct
+    Inputs:
+        username(str): Username to validate
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if the username is valid, False otherwise
+            - str: "OK" or an error message with explanation
+    """
 def validate_username_format(username: str) -> Tuple[bool, str]:
     if not username or username.strip() == "":
         return False, "Username cannot be empty"
@@ -33,7 +42,16 @@ def validate_password_format(password: str) -> Tuple[bool, str]:
     return True, "OK"
 
 def validate_menu_option_format(choice: str, allowed_options: List[str]) -> Tuple[bool, str]:
-
+"""
+    Validates the format of  menu 
+    Inputs:
+        choice(str): Menu option to validate
+        allowed_options(List[str]):
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if  menu option is valid, False otherwise
+            - str: "OK" or an error message with explanation
+    """
     if choice in allowed_options:
         return True, "OK"
     return False, "Invalid option, please try again"
