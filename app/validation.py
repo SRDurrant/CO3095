@@ -2,9 +2,9 @@
 Global input validation helpers for the system
 
 Implements US31 - Global Input Validation
-Username format validation
-Password format validation
-Menu option validation
+- Username format validation
+- Password format validation
+- Menu option validation
 
 Implements US2 - Validate School Creation Input
 - School name format validation
@@ -12,22 +12,23 @@ Implements US2 - Validate School Creation Input
 - School location format validation
 
 These helpers are used by modules to ensure consistent validation
-rules across the system
+rules across the system.
 """
 
 from typing import Tuple, List
 
+
 def validate_username_format(username: str) -> Tuple[bool, str]:
-     """
-    Validates the format of the username.
+    """Validates the format of the username.
+
     Inputs:
-        username(str): Username to validate
+        username (str): Username to validate.
+
     Returns:
         Tuple[bool, str]:
-            - bool: True, only if the username is valid and is false otherwise
-            - str: "OK" or an error message with explanation
+            - bool: True only if the username is valid; False otherwise.
+            - str: "OK" or an error message with explanation.
     """
-
     if not username or username.strip() == "":
         return False, "Username cannot be empty"
 
@@ -40,43 +41,61 @@ def validate_username_format(username: str) -> Tuple[bool, str]:
 
 
 def validate_password_format(password: str) -> Tuple[bool, str]:
- """
-    Validates the password format
+    """Validates the password format.
+
     Inputs:
-        password(str): Password to validate
+        password (str): Password to validate.
+
     Returns:
         Tuple[bool, str]:
-            - bool: True only when and if the password is valid and is false otherwise
-            - str: "OK" or an error message with explanation
+            - bool: True only if the password is valid; False otherwise.
+            - str: "OK" or an error message with explanation.
     """
-    if not password:
+    if not password or password.strip() == "":
         return False, "Password cannot be empty"
 
-    if len(password) < 8:
+    cleaned = password.strip()
+
+    if len(cleaned) < 8:
         return False, "Password must be at least 8 characters long"
 
     return True, "OK"
 
+
 def validate_menu_option_format(choice: str, allowed_options: List[str]) -> Tuple[bool, str]:
+    """Validates the format of a menu option.
+
+    Inputs:
+        choice (str): Menu option to validate.
+        allowed_options (List[str]): List of allowed option values.
+
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if menu option is valid, False otherwise.
+            - str: "OK" or an error message with explanation.
+    """
     if choice in allowed_options:
         return True, "OK"
     return False, "Invalid option, please try again"
 
-def validate_rating_input(rating_value: str,
-                          min_rating: int = 1,
-                          max_rating: int = 5) -> Tuple[bool, str]:
-    """
-    Validates the rating input for US20 - Validate Rating Input.
+
+def validate_rating_input(
+    rating_value: str,
+    min_rating: int = 1,
+    max_rating: int = 5
+) -> Tuple[bool, str]:
+    """Validates the rating input for US20 - Validate Rating Input.
+
     Inputs:
-        rating_value (str): Raw user input for rating (e.g. from input()).
+        rating_value (str): Raw user input for rating (e.g., from input()).
         min_rating (int): Minimum allowed rating value (inclusive).
         max_rating (int): Maximum allowed rating value (inclusive).
+
     Returns:
         Tuple[bool, str]:
-            - bool: True only if the rating value is valid and is false otherwise.
+            - bool: True only if the rating value is valid; False otherwise.
             - str: "OK" or an error message with explanation.
     """
-
     if rating_value is None:
         return False, "Rating cannot be empty"
 
@@ -101,18 +120,16 @@ def validate_rating_input(rating_value: str,
 
 
 def validate_school_name(name: str) -> Tuple[bool, str]:
-    """
-    Validates the school's name
+    """Validates the school's name.
 
     Inputs:
-        name (str): School name to validate
+        name (str): School name to validate.
 
     Returns:
         Tuple[bool, str]:
-            - bool: True if the name is valid, False otherwise
-            - str: "Accepted" or an error message with explanation
+            - bool: True if the name is valid, False otherwise.
+            - str: "Accepted" or an error message with explanation.
     """
-
     if not name or name.strip() == "":
         return False, "School name cannot be empty"
 
@@ -125,18 +142,16 @@ def validate_school_name(name: str) -> Tuple[bool, str]:
 
 
 def validate_school_level(level_input: str) -> Tuple[bool, str]:
-    """
-    Validates the school's level
+    """Validates the school's level.
 
     Inputs:
-        level_choice (str): Level choice to validate (should be "1", "2", or "3")
+        level_input (str): Level choice to validate (should be "1", "2", or "3").
 
     Returns:
         Tuple[bool, str]:
-            - bool: True if the level choice is valid, False otherwise
-            - str: "Accepted" or an error message with explanation
+            - bool: True if the level choice is valid, False otherwise.
+            - str: "Accepted" or an error message with explanation.
     """
-
     valid_levels = ["1", "2", "3"]
 
     if level_input not in valid_levels:
@@ -146,18 +161,16 @@ def validate_school_level(level_input: str) -> Tuple[bool, str]:
 
 
 def validate_school_location(location: str) -> Tuple[bool, str]:
-    """
-    Validates the school's location
+    """Validates the school's location.
 
     Inputs:
-        location (str): School location to validate
+        location (str): School location to validate.
 
     Returns:
         Tuple[bool, str]:
-            - bool: True if the location is valid, False otherwise
-            - str: "Accepted" or an error message with explanation
+            - bool: True if the location is valid, False otherwise.
+            - str: "Accepted" or an error message with explanation.
     """
-
     if not location or location.strip() == "":
         return False, "School location cannot be empty"
 
@@ -170,20 +183,18 @@ def validate_school_location(location: str) -> Tuple[bool, str]:
 
 
 def check_duplicate_school(schools: List[dict], name: str, location: str) -> Tuple[bool, str]:
-    """
-    Checks if a school with the same name and location already exists
+    """Checks if a school with the same name and location already exists.
 
     Inputs:
-        schools (List[dict]): List of existing schools
-        name (str): School name to check
-        location (str): School location to check
+        schools (List[dict]): List of existing schools.
+        name (str): School name to check.
+        location (str): School location to check.
 
     Returns:
         Tuple[bool, str]:
-            - bool: True if no duplicate exists, False if duplicate found
-            - str: "Accepted" or an error message with explanation
+            - bool: True if no duplicate exists, False if duplicate found.
+            - str: "Accepted" or an error message with explanation.
     """
-
     cleaned_name = name.strip().lower()
     cleaned_location = location.strip().lower()
 
