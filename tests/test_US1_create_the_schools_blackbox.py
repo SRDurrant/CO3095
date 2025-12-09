@@ -95,62 +95,58 @@ def test_add_school_success_combined():
 
 def test_add_school_empty_name():
     """
-    Tests adding a school with empty name (currently no validation, should be accepted)
+    Tests adding a school with empty name (should bring up error, 0 will exit school creation)
     """
 
     success, outputs = run_add_school_with_inputs(
-        ["", "1", "London"]
+        ["", "0"]
     )
 
-    assert success is True
-    schools = get_schools()
-    assert len(schools) == 1
-    assert schools[0]["name"] == ""
+    assert success is False
+    assert any("cannot be empty" in line for line in outputs)
+    assert any("cancelled" in line for line in outputs)
 
 
 def test_add_school_empty_level_choice():
     """
-    Tests adding a school with empty level choice (currently no validation, should be accepted)
+    Tests adding a school with empty level choice (should bring up error, 0 will exit school creation)
     """
 
     success, outputs = run_add_school_with_inputs(
-        ["Fancy School", "", "London"]
+        ["Fancy School", "", "0"]
     )
 
-    assert success is True
-    schools = get_schools()
-    assert len(schools) == 1
-    assert schools[0]["level"] == ""
+    assert success is False
+    assert any("Invalid input" in line for line in outputs)
+    assert any("cancelled" in line for line in outputs)
 
 
 def test_add_school_empty_location():
     """
-    Tests adding a school with empty location (currently no validation, should be accepted)
+    Tests adding a school with empty location (should bring up error, 0 will exit school creation)
     """
 
     success, outputs = run_add_school_with_inputs(
-        ["Test School", "1", ""]
+        ["Test School", "1", "","0"]
     )
 
-    assert success is True
-    schools = get_schools()
-    assert len(schools) == 1
-    assert schools[0]["location"] == ""
+    assert success is False
+    assert any("cannot be empty" in line for line in outputs)
+    assert any("cancelled" in line for line in outputs)
 
 
 def test_add_school_invalid_level_choice():
     """
-    Tests adding a school with invalid level choice (currently no validation, should be accepted)
+    Tests adding a school with invalid level choice (should bring up error, 0 will exit school creation)
     """
 
     success, outputs = run_add_school_with_inputs(
-        ["Test School", "5", "London"]
+        ["Test School", "5", "0"]
     )
 
-    assert success is True
-    schools = get_schools()
-    assert len(schools) == 1
-    assert schools[0]["level"] == "5"
+    assert success is False
+    assert any("Invalid input" in line for line in outputs)
+    assert any("cancelled" in line for line in outputs)
 
 
 def test_add_school_special_characters_name():
@@ -166,3 +162,4 @@ def test_add_school_special_characters_name():
     schools = get_schools()
     assert len(schools) == 1
     assert schools[0]["name"] == "Test & School"
+
