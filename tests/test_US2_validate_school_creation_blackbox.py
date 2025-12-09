@@ -120,9 +120,18 @@ def test_validation_duplicate_school_retry_different_location():
         "location": "London"
     })
 
-    success, outputs = run_add_school_with_inputs(
-        ["Test School", "2", "London", "Manchester"]
-    )
+    inputs = ["Test School", "2", "London","Manchester"]
+    inputs_iter = iter(inputs)
+
+    def fake_input(prompt: str) -> str:
+        return next(inputs_iter, "")
+
+    outputs = []
+
+    def fake_print(message: str) -> None:
+        outputs.append(message)
+
+    success = add_new_school(input_func=fake_input, print_func=fake_print)
 
     assert success is True
     assert any("already exists" in line for line in outputs)
