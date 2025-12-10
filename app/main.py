@@ -15,7 +15,7 @@ from app.auth import register_user, login_user
 from app.data_store import get_users, example_users, get_current_user, clear_current_user
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
-from app.admin_actions import list_all_users, delete_user_by_id, add_new_school
+from app.admin_actions import list_all_users, delete_user_by_id, add_new_school, delete_comment_by_id
 from app.school_actions import list_all_schools
 
 def show_main_menu():
@@ -54,6 +54,9 @@ def show_main_menu():
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("10. Delete Selected User (Admin Only)")
 
+    if current is not None and user_has_role(current, [ROLE_ADMIN]):
+        print("11. Delete a Comment (Admin Only)")
+
     print("0. Exit")
 
 
@@ -81,6 +84,7 @@ def main() -> None:
             allowed_options.append("3")
             allowed_options.append("9")
             allowed_options.append("10")
+            allowed_options.append("11")
 
         choice = input("Select an option: ").strip()
 
@@ -127,6 +131,18 @@ def main() -> None:
                 continue
 
             delete_user_by_id(uid, print)
+
+        elif choice == "11":
+            if not check_access(current, [ROLE_ADMIN], print_func=print):
+                continue
+
+            try:
+                cid = int(input("Enter comment ID to delete: "))
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+                continue
+
+            delete_comment_by_id(cid, print)
 
         elif choice == "0":
             print("\nThank you for using School Evaluation Platform")

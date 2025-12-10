@@ -3,6 +3,7 @@ from app.data_store import get_users
 from app.data_store import add_school
 from app.data_store import get_schools
 from app.data_store import get_next_school_id
+from app.reviews import COMMENTS
 from app.validation import (
     validate_school_name,
     validate_school_level,
@@ -168,3 +169,29 @@ def add_new_school(
 
     print_func(f"\nSchool '{name}' has been successfully added.")
     return True
+
+def delete_comment_by_id(
+        comment_id: int,
+        print_func: Callable = print
+) -> bool:
+    """
+    USX – Admin deletes an inappropriate comment.
+    Admins maintain quality by removing comments.
+
+    Inputs:
+        comment_id (int): ID of comment in COMMENTS list (index+1)
+        print_func (Callable): for testing
+
+    Returns:
+        bool: True if deletion successful, False if comment does not exist
+    """
+
+    # Comments currently do not store IDs. We simulate ID = index+1.
+    for i, comment in enumerate(COMMENTS):
+        if (i + 1) == comment_id:
+            deleted = COMMENTS.pop(i)
+            print_func(f"Comment #{comment_id} from user {deleted['user_id']} has been deleted.")
+            return True
+
+    print_func("Error: Comment does not exist.")
+    return False
