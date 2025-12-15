@@ -9,13 +9,14 @@ User Stories included so far:
  - US25 - Role based access Control
  - US1  - Create the Schools
  - US6  - List All Schools
+ - US4  - Delete School
 """
 
 from app.auth import register_user, login_user
 from app.data_store import get_users, example_users, get_current_user, clear_current_user
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
-from app.admin_actions import list_all_users, delete_user_by_id, add_new_school, delete_comment_by_id
+from app.admin_actions import list_all_users, delete_user_by_id, add_new_school, delete_comment_by_id, delete_school_by_id
 from app.school_actions import list_all_schools
 
 def show_main_menu():
@@ -47,6 +48,9 @@ def show_main_menu():
         print("3. Add New School (Admin Only)")
 
     print("4. View Schools")
+
+    if current is not None and user_has_role(current, [ROLE_ADMIN]):
+        print("5. Delete School (Admin Only)")
 
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("9. Display Registered Users (Admin Only)")
@@ -82,6 +86,7 @@ def main() -> None:
 
         if current is not None and user_has_role(current, [ROLE_ADMIN]):
             allowed_options.append("3")
+            allowed_options.append("5")
             allowed_options.append("9")
             allowed_options.append("10")
             allowed_options.append("11")
@@ -113,7 +118,14 @@ def main() -> None:
             add_new_school()
 
         elif choice == "4":
+            # US6 - List all Schools
             list_all_schools()
+
+        elif choice == "5":
+            # US4 - Delete School
+            if not check_access(current, [ROLE_ADMIN], print_func=print):
+                continue
+            delete_school_by_id()
 
         elif choice == "9":
             if not check_access(current, [ROLE_ADMIN], print_func=print):
