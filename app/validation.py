@@ -11,6 +11,9 @@ Implements US2 - Validate School Creation Input
 - School level format validation
 - School location format validation
 
+Implements US4 - Delete School
+- School ID existence validation
+
 These helpers are used by modules to ensure consistent validation
 rules across the system.
 """
@@ -205,3 +208,22 @@ def check_duplicate_school(schools: List[dict], name: str, location: str) -> Tup
             return False, "A school with this name and location already exists"
 
     return True, "Accepted"
+
+
+def validate_school_id_exists(schools: List[dict], school_id: int) -> Tuple[bool, str]:
+    """Validates that a school exists in global list of schools when given an ID
+
+    Inputs:
+        schools (List[dict]): List of existing schools.
+        school_id (int): School ID to check.
+
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if school exists, False otherwise.
+            - str: "Accepted" or an error message with explanation.
+    """
+    for school in schools:
+        if school.get("school_id") == school_id:
+            return True, "Accepted"
+
+    return False, f"School with ID {school_id} does not exist"
