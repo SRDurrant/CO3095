@@ -8,7 +8,8 @@ from app.validation import (
     validate_school_name,
     validate_school_level,
     validate_school_location,
-    check_duplicate_school
+    check_duplicate_school,
+    validate_school_id_exists
 )
 
 
@@ -169,6 +170,78 @@ def add_new_school(
 
     print_func(f"\nSchool '{name}' has been successfully added.")
     return True
+
+
+def delete_school_by_id(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> bool:
+    """
+    US4 - Delete School
+    As an admin, I want to delete a school, so the system avoids duplicates
+    and outdated records.
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output
+
+    Returns:
+        bool: True if deletion successful, False otherwise
+    """
+
+    schools = get_schools()
+
+    print_func("\n=== Delete a School ===")
+
+    if not schools:
+        print_func("No schools found in the system.")
+        print_func("Press '0' to return to the main menu")
+        input_func("")
+        return False
+
+    # Display all schools
+    for school in schools:
+        school_id = school.get("school_id", "?")
+        name = school.get("name", "?")
+        level = school.get("level", "?")
+        location = school.get("location", "?")
+
+        print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location}")
+
+    # Prompt for school ID to delete
+    while True:
+        print_func("\nType '0' to return to the main menu")
+        school_id_input = input_func("Enter the school ID to delete: ").strip()
+
+        if school_id_input == "0":
+            print_func("\nSchool deletion cancelled. Returning to main menu.")
+            return False
+
+        # Validate input is not empty
+        if not school_id_input:
+            print_func("Error: School ID cannot be empty.")
+            continue
+
+         # Validate input is numeric
+        if not school_id_input.isdigit():
+            print_func("Error: School ID must be a number.")
+            continue
+
+        school_id = int(school_id_input)
+
+        # Validate school exists
+        school_exists, error_msg_id = validate_school_id_exists(schools, school_id)
+        if not school_exists:
+            print_func(f"Error: {error_msg_id}")
+            continue
+
+        # Finds and deletes the school
+        for i, school in enumerate(schools):
+            if school.get("school_id") == school_id:
+                deleted_school = schools.pop(i)
+                print_func(f"\n (ID {school_id}):'{deleted_school['name']}' has been deleted.")
+                return True
+
 
 def delete_comment_by_id(
         comment_id: int,
