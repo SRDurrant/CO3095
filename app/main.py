@@ -7,13 +7,14 @@ User Stories included so far:
  - US23 - Session Handling
  - US31 - Global Session Handling
  - US25 - Role based access Control
- - US1  - Create the Schools
- - US6  - List All Schools
- - US4  - Delete School
- - US3  - Update School Details
+ - US24 - Password Reset
+ - US1 - Create the Schools
+ - US6 - List All Schools
+ - US4 - Delete School
+ - US3 - Update School Details
 """
 
-from app.auth import register_user, login_user
+from app.auth import register_user, login_user, reset_password
 from app.data_store import get_users, example_users, get_current_user, clear_current_user
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
@@ -42,6 +43,7 @@ def show_main_menu():
 
     if current is None:
         print("2. Login")
+        print("3. Reset Password")
     else:
         print("2. Logout")
 
@@ -88,6 +90,9 @@ def main() -> None:
 
         allowed_options = ["1", "2","4", "0"]
 
+        if current is None:
+            allowed_options.append("3")
+
         if current is not None and user_has_role(current, [ROLE_ADMIN]):
             allowed_options.append("3")
             allowed_options.append("5")
@@ -117,6 +122,12 @@ def main() -> None:
                 print("\nYou have been logged out")
 
         elif choice == "3":
+
+            # US24 - Password Reset
+            if current is None:
+                reset_password()
+                continue
+
             # US1 - Create the Schools
             if not check_access(current, [ROLE_ADMIN], print_func=print):
                 continue
