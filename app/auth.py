@@ -202,3 +202,66 @@ def login_user(
 
         print_func("\nLogin successful, welcome {}".format(username))
         return True, user
+
+
+def reset_password(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> Tuple[bool, object]:
+    """
+    Allows a user to reset their password if they forget it, using their username
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - True, updated_user_dict (Dict) on success
+            - False, error_message (str) on failure/cancel
+    """
+
+    users = get_users()
+
+    print_func("\nPassword Reset")
+
+    if not users:
+        msg = "No registered users. Please register first"
+        print_func(f"\n{msg}")
+        return False, f"\n{msg}"
+
+    while True:
+        print_func("\nEnter your username to reset password")
+        print_func("Type '0' to return to the main menu")
+
+        username = input_func("Username: ").strip()
+        if username == "0":
+            msg = "\nPassword reset cancelled"
+            print_func(msg)
+            return False, msg
+
+        user = find_user_by_username(users, username)
+        if user is None:
+            print_func("\nPassword reset failed: Username not found")
+            continue
+
+        new_password = input_func("Enter your new password: ")
+        if new_password == "0":
+            msg = "\nPassword reset cancelled"
+            print_func(msg)
+            return False, msg
+
+        confirm_password = input_func("Confirm your new password: ")
+        if confirm_password == "0":
+            msg = "\nPassword reset cancelled"
+            print_func(msg)
+            return False, msg
+
+        is_valid_pw, msg_pw = validate_new_password(new_password, confirm_password)
+        if not is_valid_pw:
+            print_func(f"\nInvalid Password: {msg_pw}")
+            continue
+
+        user["password"] = new_password
+        print_func("\nPassword reset successful.")
+        return True, user
