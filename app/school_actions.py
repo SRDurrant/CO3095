@@ -42,3 +42,30 @@ def list_all_schools(
 
     print_func("\nPress '0' to return to the main menu")
     input_func("")
+
+def view_school_rankings(print_func=print) -> None:
+    """
+    US11 – View school rankings for each category (level)
+    Shows all schools sorted by average rating
+    """
+
+    schools = get_schools()
+    if not schools:
+        print_func("No schools available.")
+        return
+
+    averages = _calculate_average_ratings()
+    grouped = defaultdict(list)
+
+    for s in schools:
+        avg = averages.get(str(s["school_id"]), 0)
+        grouped[s["level"]].append((s, avg))
+
+    for level, items in grouped.items():
+        print_func(f"\n=== {level.capitalize()} Schools Ranking ===")
+        items.sort(key=lambda x: x[1], reverse=True)
+
+        for s, avg in items:
+            print_func(
+                f"ID {s['school_id']} | {s['name']} | Avg Rating: {avg:.2f}"
+            )
