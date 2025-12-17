@@ -180,6 +180,6 @@ def load_system_data(
 
     except Exception as error:
         print_func(
-            f"Failed to load system state from {file_path}. Reason: {error}"
+            f"Failed to load system data from {file_path}. Reason: {error}"
         )
         return False
