@@ -4,7 +4,7 @@ For school-related actions for the system
 Implements:
 - US6 - List All Schools
 """
-
+from collections import defaultdict
 from typing import Callable
 from app.data_store import get_schools
 
@@ -42,3 +42,25 @@ def list_all_schools(
 
     print_func("\nPress '0' to return to the main menu")
     input_func("")
+
+def view_top_schools(limit: int = 3, print_func=print) -> None:
+    """
+    US12 – Shows top-performing schools per category
+    """
+
+    schools = get_schools()
+    averages = _calculate_average_ratings()
+    grouped = defaultdict(list)
+
+    for s in schools:
+        avg = averages.get(str(s["school_id"]), 0)
+        grouped[s["level"]].append((s, avg))
+
+    for level, items in grouped.items():
+        print_func(f"\n=== Top {limit} {level.capitalize()} Schools ===")
+        items.sort(key=lambda x: x[1], reverse=True)
+
+        for s, avg in items[:limit]:
+            print_func(
+                f"{s['name']} (ID {s['school_id']}) - Avg Rating: {avg:.2f}"
+            )
