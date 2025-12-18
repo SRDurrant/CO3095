@@ -3,7 +3,7 @@ from app.data_store import get_users
 from app.data_store import add_school
 from app.data_store import get_schools
 from app.data_store import get_next_school_id
-from app.reviews import COMMENTS
+from app.reviews import COMMENTS, RATINGS
 from app.validation import (
     validate_school_name,
     validate_school_level,
@@ -431,3 +431,14 @@ def delete_comment_by_id(
 
     print_func("Error: Comment does not exist.")
     return False
+
+def view_system_statistics(print_func=print) -> None:
+    """
+    US35 – Admin views system-wide statistics
+    """
+
+    print_func("\n=== System Statistics ===")
+    print_func(f"Total Users: {len(get_users())}")
+    print_func(f"Total Schools: {len(get_schools())}")
+    print_func(f"Total Ratings: {len(RATINGS)}")
+    print_func(f"Total Comments: {len(COMMENTS)}")
