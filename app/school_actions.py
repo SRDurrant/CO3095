@@ -5,6 +5,7 @@ Implements:
 - US6 - List All Schools
 - US5 - View School Profile
 - US11 - View School Rankings for Each Category (Level)
+- US8 - Search Schools by Name
 """
 
 from typing import Callable, Dict
@@ -186,3 +187,90 @@ def view_school_rankings(print_func: Callable[[str], None] = print) -> None:
             print_func(
                 f"ID {school.get('school_id')} | {school.get('name')} | Avg Rating: {avg:.2f}"
             )
+
+
+def search_schools_by_name(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> None:
+    """
+    US8 - Search Schools by Name
+    As a user, I want to search schools using a keyword so I can quickly
+    find a specific school.
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+
+    schools = get_schools()
+
+    while True:
+        print_func("\n=== Search Schools ===")
+        print_func("Type '0' to return to the main menu")
+
+        keyword = input_func("Enter search: ").strip()
+
+        if keyword == "0":
+            print_func("\nReturning to main menu.")
+            return
+
+        if not keyword:
+            print_func("Error: Search cannot be empty.")
+            continue
+
+        # Searches for matches
+        keyword_lower = keyword.lower()
+        matching_schools = [
+            school for school in schools
+            if keyword_lower in school.get("name", "").lower()
+        ]
+
+        if not matching_schools:
+            print_func(f"\nNo schools found matching '{keyword}'.")
+            print_func("Try a different search or press '0' to return.")
+            continue
+
+        print_func(f"\n=== Search Results for '{keyword}' ===")
+        print_func(f"Found {len(matching_schools)} school(s):\n")
+
+        for school in matching_schools:
+            school_id = school.get("school_id", "?")
+            name = school.get("name", "?")
+
+            print_func(f"ID: {school_id} | Name: {name}")
+
+        print_func("\n1. View School Profile")
+        print_func("2. Search Again")
+        print_func("0. Return to Main Menu")
+
+        choice = input_func("Select an option: ").strip()
+
+        if choice == "0":
+            print_func("\nReturning to main menu.")
+            return
+
+        elif choice == "1":
+            for school in matching_schools:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                location = school.get("location", "?")
+
+                print_func(f"ID: {school_id}")
+                print_func(f"Name: {name}")
+                print_func(f"Level: {level.capitalize()}")
+                print_func(f"Location: {location}")
+                print_func("\nEnter any key to return to search page")
+                input_func("")
+                continue
+
+        elif choice == "2":
+            continue
+
+        else:
+            print_func("Invalid option, please try again")
