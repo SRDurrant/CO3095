@@ -96,3 +96,57 @@ def test_list_schools_multiple_schools():
     assert "First School" in output_text
     assert "Second School" in output_text
     assert "Third School" in output_text
+
+
+def test_list_shows_options():
+    """
+    Tests that sub-menu options are displayed
+    """
+
+    SCHOOLS.clear()
+    add_school({
+        "school_id": 1,
+        "name": "Test School",
+        "level": "primary",
+        "location": "London"
+    })
+
+    outputs = []
+
+    def fake_input(prompt: str) -> str:
+        return "0"
+
+    def fake_print(message: str) -> None:
+        outputs.append(message)
+
+    list_all_schools(input_func=fake_input, print_func=fake_print)
+
+    assert any("1. View School Profile" in line for line in outputs)
+    assert any("0. Return to Main Menu" in line for line in outputs)
+
+
+def test_list_invalid_option_input():
+    """
+    Test that invalid option input shows error and loops back
+    """
+
+    SCHOOLS.clear()
+    add_school({
+        "school_id": 1,
+        "name": "Test School",
+        "level": "primary",
+        "location": "London"
+    })
+
+    inputs_iter = iter(["5", "0"])
+    outputs = []
+
+    def fake_input(prompt: str) -> str:
+        return next(inputs_iter, "0")
+
+    def fake_print(message: str) -> None:
+        outputs.append(message)
+
+    list_all_schools(input_func=fake_input, print_func=fake_print)
+
+    assert any("Invalid option" in line for line in outputs)
