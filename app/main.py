@@ -19,7 +19,7 @@ from app.data_store import get_users, example_users, get_current_user, clear_cur
 from app.validation import validate_menu_option_format
 from app.access_control import user_has_role, check_access, ROLE_ADMIN
 from app.admin_actions import list_all_users, delete_user_by_id, add_new_school, delete_comment_by_id, delete_school_by_id, update_school_by_id
-from app.school_actions import list_all_schools
+from app.school_actions import list_all_schools, view_school_rankings
 
 def show_main_menu():
     """
@@ -58,6 +58,8 @@ def show_main_menu():
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("6. Update School (Admin Only)")
 
+    print("7. View School Rankings")
+
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("9. Display Registered Users (Admin Only)")
 
@@ -88,7 +90,7 @@ def main() -> None:
         show_main_menu()
         current = get_current_user()
 
-        allowed_options = ["1", "2","4", "0"]
+        allowed_options = ["1", "2","4", "7","0"]
 
         if current is None:
             allowed_options.append("3")
@@ -148,6 +150,9 @@ def main() -> None:
             if not check_access(current, [ROLE_ADMIN], print_func=print):
                 continue
             update_school_by_id()
+
+        elif choice == "7":
+            view_school_rankings(print)
 
         elif choice == "9":
             if not check_access(current, [ROLE_ADMIN], print_func=print):

@@ -4,11 +4,16 @@ For school-related actions for the system
 Implements:
 - US6 - List All Schools
 - US5 - View School Profile
+- US11 - View School Rankings for Each Category (Level)
 """
 
-from typing import Callable
+from typing import Callable, Dict
+from collections import defaultdict
+
 from app.data_store import get_schools
 from app.validation import validate_school_id_exists
+from app.reviews import RATINGS
+
 
 def list_all_schools(
         input_func: Callable[[str], str] = input,
@@ -39,7 +44,6 @@ def list_all_schools(
         for school in schools:
             school_id = school.get("school_id", "?")
             name = school.get("name", "?")
-
             print_func(f"ID: {school_id} | Name: {name}")
 
         print_func("\n1. View School Profile")
@@ -51,7 +55,6 @@ def list_all_schools(
             return
 
         elif choice == "1":
-            # View School Profile
             view_school_profile(input_func, print_func)
 
         else:
@@ -81,10 +84,8 @@ def view_school_profile(
     for school in schools:
         school_id = school.get("school_id", "?")
         name = school.get("name", "?")
-
         print_func(f"ID: {school_id} | Name: {name}")
 
-    # Prompt for school ID to view
     while True:
         print_func("\nType '0' to return to schools list")
         school_id_input = input_func("Enter the school ID to view profile: ").strip()
@@ -93,25 +94,21 @@ def view_school_profile(
             print_func("\nReturning to schools list.")
             return False
 
-        # Validate input is not empty
         if not school_id_input:
             print_func("Error: School ID cannot be empty.")
             continue
 
-        # Validate input is numeric
         if not school_id_input.isdigit():
             print_func("Error: School ID must be a number.")
             continue
 
         school_id = int(school_id_input)
 
-        # Validate school exists
         school_exists, error_msg = validate_school_id_exists(schools, school_id)
         if not school_exists:
             print_func(f"Error: {error_msg}")
             continue
 
-        # Find and display the school
         for school in schools:
             if school.get("school_id") == school_id:
                 print_func("\n=== School Details ===")
@@ -123,3 +120,69 @@ def view_school_profile(
                 print_func("\nPress any key to return to schools list")
                 input_func("")
                 return True
+
+
+def _calculate_average_ratings() -> Dict[str, float]:
+    """
+    US11 helper: Calculate average rating for each school_id from RATINGS.
+
+    Inputs:
+        None
+
+    Returns:
+        Dict[str, float]: Mapping of school_id (string) to average rating
+    """
+
+    totals: Dict[str, int] = {}
+    counts: Dict[str, int] = {}
+
+    for rating in RATINGS:
+        school_id = str(rating.get("school_id"))
+        value = rating.get("value")
+
+        if school_id is None or value is None:
+            continue
+
+        totals[school_id] = totals.get(school_id, 0) + int(value)
+        counts[school_id] = counts.get(school_id, 0) + 1
+
+    averages: Dict[str, float] = {}
+    for sid, total in totals.items():
+        averages[sid] = total / counts[sid]
+
+    return averages
+
+
+def view_school_rankings(print_func: Callable[[str], None] = print) -> None:
+    """
+    US11 – View school rankings for each category (level)
+    Shows all schools sorted by average rating within each level.
+
+    Inputs:
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+    schools = get_schools()
+    if not schools:
+        print_func("No schools available.")
+        return
+
+    averages = _calculate_average_ratings()
+    grouped = defaultdict(list)
+
+    for school in schools:
+        level = school.get("level", "unknown")
+        avg = averages.get(str(school.get("school_id")), 0.0)
+        grouped[level].append((school, avg))
+
+    for level, items in grouped.items():
+        print_func(f"\n=== {str(level).capitalize()} Schools Ranking ===")
+        items.sort(key=lambda x: x[1], reverse=True)
+
+        for school, avg in items:
+            print_func(
+                f"ID {school.get('school_id')} | {school.get('name')} | Avg Rating: {avg:.2f}"
+            )
