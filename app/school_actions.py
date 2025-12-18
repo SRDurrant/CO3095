@@ -2,10 +2,11 @@
 For school-related actions for the system
 
 Implements:
-- US6 - List All Schools
 - US5 - View School Profile
-- US11 - View School Rankings for Each Category (Level)
+- US6 - List All Schools
 - US8 - Search Schools by Name
+- US11 - View School Rankings for Each Category (Level)
+- US12 - Shows top-performing schools per category
 """
 
 from typing import Callable, Dict
@@ -189,6 +190,40 @@ def view_school_rankings(print_func: Callable[[str], None] = print) -> None:
             )
 
 
+def view_top_schools(limit: int = 3, print_func: Callable[[str], None] = print) -> None:
+    """
+    US12 – Shows top-performing schools per category
+
+    Inputs:
+        limit (int): number of top schools to show per level
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+    schools = get_schools()
+    if not schools:
+        print_func("No schools available.")
+        return
+
+    averages = _calculate_average_ratings()
+    grouped = defaultdict(list)
+
+    for school in schools:
+        avg = averages.get(str(school.get("school_id")), 0.0)
+        grouped[school.get("level", "unknown")].append((school, avg))
+
+    for level, items in grouped.items():
+        print_func(f"\n=== Top {limit} {str(level).capitalize()} Schools ===")
+        items.sort(key=lambda x: x[1], reverse=True)
+
+        for school, avg in items[:limit]:
+            print_func(
+                f"{school.get('name')} (ID {school.get('school_id')}) - Avg Rating: {avg:.2f}"
+            )
+
+
 def search_schools_by_name(
         input_func: Callable[[str], str] = input,
         print_func: Callable[[str], None] = print
@@ -205,7 +240,6 @@ def search_schools_by_name(
     Returns:
         None
     """
-
 
     schools = get_schools()
 
