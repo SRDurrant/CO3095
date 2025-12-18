@@ -22,7 +22,7 @@ def test_top_schools_no_schools_whitebox():
 
     outputs = []
     view_top_schools(print_func=lambda x: outputs.append(x))
-    assert outputs[0] == "\n=== Top 3 "  # Empty or no ranking message can be handled
+    assert outputs[0] == "No schools available."  # Empty or no ranking message can be handled
 
 def test_top_schools_zero_ratings_whitebox():
     """Test path where schools exist but no ratings yet."""
