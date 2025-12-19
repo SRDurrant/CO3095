@@ -174,3 +174,116 @@ def view_comments_for_school(
         ts = c["created_at"].strftime("%Y-%m-%d %H:%M:%S UTC")
         print_func(f"- ({ts}) User {c['user_id']}: {c['text']}")
     return True, comments
+
+
+def get_user_comments_for_school(user_id: int, school_id: str) -> List[Dict]:
+    """
+    Return comments for a specific (user, school) pair.
+    """
+    return [c for c in COMMENTS if c.get("user_id") == user_id and c.get("school_id") == school_id]
+
+
+def edit_comment_record(comment: Dict, new_text: str, max_length: int = 500) -> Tuple[bool, str]:
+    """
+    Edit the text of a specific comment dict with basic validation.
+    """
+    if new_text is None:
+        return False, "Comment cannot be empty."
+
+    stripped = new_text.strip()
+
+    if stripped == "":
+        return False, "Comment cannot be empty."
+
+    if len(stripped) > max_length:
+        return False, f"Comment must be at most {max_length} characters."
+
+    comment["text"] = stripped
+    comment["created_at"] = datetime.now(timezone.utc)  # treat edit as updated timestamp
+    return True, "OK"
+
+
+def edit_my_comment(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+    max_length: int = 500,
+) -> Tuple[bool, object]:
+    """
+    US16 - Edit My Comment
+
+    Flow:
+    - user must be logged in
+    - ask for school id
+    - show only the user's comments for that school
+    - user selects which comment to edit
+    - validate new comment text and update in place
+    """
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to edit a comment"
+        print_func(msg)
+        return False, msg
+
+    print_func("\nEdit My Comment")
+    print_func("Type '0' at any prompt to return to the previous menu.")
+
+    school_id = input_func("Enter the school ID to edit a comment on: ").strip()
+    if school_id == "0":
+        msg = "Edit comment cancelled by user"
+        print_func(msg)
+        return False, msg
+    if not school_id:
+        msg = "School ID cannot be empty."
+        print_func(msg)
+        return False, msg
+
+    user_id = current_user["user_id"]
+    mine = get_user_comments_for_school(user_id, school_id)
+
+    if not mine:
+        msg = f"No comments found for you on school '{school_id}'."
+        print_func(msg)
+        return True, []
+
+    print_func(f"\nYour comments for school '{school_id}':")
+    for i, c in enumerate(mine, start=1):
+        ts = c["created_at"].strftime("%Y-%m-%d %H:%M:%S UTC")
+        print_func(f"{i}. ({ts}) {c['text']}")
+
+    while True:
+        choice = input_func("Select comment number to edit: ").strip()
+        if choice == "0":
+            msg = "Edit comment cancelled by user"
+            print_func(msg)
+            return False, msg
+
+        if not choice.isdigit():
+            print_func("Invalid option, please try again")
+            continue
+
+        idx = int(choice)
+        if idx < 1 or idx > len(mine):
+            print_func("Invalid option, please try again")
+            continue
+
+        target = mine[idx - 1]
+        break
+
+    while True:
+        new_text = input_func("Enter the updated comment text: ")
+        if new_text is None:
+            new_text = ""
+        if new_text.strip() == "0":
+            msg = "Edit comment cancelled by user"
+            print_func(msg)
+            return False, msg
+
+        ok, message = edit_comment_record(target, new_text, max_length=max_length)
+        if not ok:
+            print_func(message)
+            print_func("Type '0' to cancel or enter a new comment.")
+            continue
+
+        msg = "Comment updated successfully."
+        print_func(msg)
+        return True, target
