@@ -287,3 +287,86 @@ def edit_my_comment(
         msg = "Comment updated successfully."
         print_func(msg)
         return True, target
+
+def delete_comment_record(comment: Dict) -> Dict:
+    """
+    Delete a specific comment dict from COMMENTS.
+
+    Inputs:
+        comment (dict): comment dict to remove
+
+    Returns:
+        dict: the removed comment
+    """
+    COMMENTS.remove(comment)
+    return comment
+
+
+def delete_my_comment(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+) -> Tuple[bool, object]:
+    """
+    US17 - Delete My Comment
+
+    Flow:
+    - user must be logged in
+    - ask for school id
+    - list only the user's comments for that school
+    - user selects which comment to delete
+    - deletes it from COMMENTS
+    """
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to delete a comment"
+        print_func(msg)
+        return False, msg
+
+    print_func("\nDelete My Comment")
+    print_func("Type '0' at any prompt to return to the previous menu.")
+
+    school_id = input_func("Enter the school ID to delete a comment from: ").strip()
+    if school_id == "0":
+        msg = "Delete comment cancelled by user"
+        print_func(msg)
+        return False, msg
+    if not school_id:
+        msg = "School ID cannot be empty."
+        print_func(msg)
+        return False, msg
+
+    user_id = current_user["user_id"]
+    mine = get_user_comments_for_school(user_id, school_id)
+
+    if not mine:
+        msg = f"No comments found for you on school '{school_id}'."
+        print_func(msg)
+        return True, []
+
+    print_func(f"\nYour comments for school '{school_id}':")
+    for i, c in enumerate(mine, start=1):
+        ts = c["created_at"].strftime("%Y-%m-%d %H:%M:%S UTC")
+        print_func(f"{i}. ({ts}) {c['text']}")
+
+    while True:
+        choice = input_func("Select comment number to delete: ").strip()
+        if choice == "0":
+            msg = "Delete comment cancelled by user"
+            print_func(msg)
+            return False, msg
+
+        if not choice.isdigit():
+            print_func("Invalid option, please try again")
+            continue
+
+        idx = int(choice)
+        if idx < 1 or idx > len(mine):
+            print_func("Invalid option, please try again")
+            continue
+
+        target = mine[idx - 1]
+        deleted = delete_comment_record(target)
+
+        msg = "Comment deleted successfully."
+        print_func(msg)
+        return True, deleted
