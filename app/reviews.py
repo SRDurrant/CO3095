@@ -287,3 +287,64 @@ def edit_my_comment(
         msg = "Comment updated successfully."
         print_func(msg)
         return True, target
+
+def get_average_rating_for_school(school_id: str) -> Optional[float]:
+    """
+    US19 helper: compute average rating for a school.
+
+    Inputs:
+        school_id (str): school identifier to compute average for
+
+    Returns:
+        float | None:
+            - average rating if at least one rating exists
+            - None if no ratings exist for that school
+    """
+    matching = [r for r in RATINGS if r.get("school_id") == school_id]
+    if not matching:
+        return None
+
+    total = sum(int(r.get("value", 0)) for r in matching)
+    return total / len(matching)
+
+
+def view_average_rating_for_school(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+) -> Tuple[bool, object]:
+    """
+    US19 - View Average Rating for a School
+
+    Flow:
+    - ask for school ID
+    - allow cancel with '0'
+    - validate school id not empty
+    - compute average from RATINGS
+    - if none found, return True with None
+    - else print average and return it
+    """
+    print_func("\nView Average Rating for a School")
+    print_func("Type '0' to return to the previous menu.")
+
+    school_id = input_func("Enter the school ID to view average rating: ").strip()
+
+    if school_id == "0":
+        msg = "Viewing average rating cancelled by user"
+        print_func(msg)
+        return False, msg
+
+    if not school_id:
+        msg = "School ID cannot be empty."
+        print_func(msg)
+        return False, msg
+
+    avg = get_average_rating_for_school(school_id)
+
+    if avg is None:
+        msg = f"No ratings found for school '{school_id}'."
+        print_func(msg)
+        return True, None
+
+    msg = f"Average rating for school '{school_id}': {avg:.2f}"
+    print_func(msg)
+    return True, avg
