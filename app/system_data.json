@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "user_id": 1,
+      "username": "admin-user",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "user_id": 2,
+      "username": "student-user",
+      "password": "student456",
+      "role": "student"
+    }
+  ],
+  "schools": [],
+  "ratings": [],
+  "comments": []
+}
