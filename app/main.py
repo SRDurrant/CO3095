@@ -30,7 +30,8 @@ from app.admin_actions import (
     update_school_by_id,
     view_system_statistics
 )
-from app.school_actions import list_all_schools, view_school_rankings, search_schools_by_name, view_top_schools
+from app.school_actions import list_all_schools, view_school_rankings, search_schools_by_name, view_top_schools, \
+    view_trending_schools
 from app.persistence import load_system_data, save_system_data
 
 DEFAULT_SYSTEM_DATA_PATH = "system_data.json"
@@ -67,6 +68,7 @@ def show_main_menu():
     print("5. View School Rankings")
     print("6. View Top Schools by Category")
     print("7. Search for Schools")
+    print("15. View Trending Schools")
 
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("8. Delete School (Admin Only)")
@@ -102,7 +104,7 @@ def main() -> None:
             show_main_menu()
             current = get_current_user()
 
-            allowed_options = ["1", "2", "4", "5", "6", "7", "0"]
+            allowed_options = ["1", "2", "4", "5", "6", "7", "15", "0"]
 
 
             if current is None:
@@ -210,6 +212,9 @@ def main() -> None:
                 if not check_access(current, [ROLE_ADMIN], print_func=print):
                     continue
                 view_system_statistics(print)
+
+            elif choice == "15":
+                view_trending_schools(print_func=print)
 
             elif choice == "0":
 
