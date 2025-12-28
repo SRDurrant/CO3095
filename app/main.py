@@ -28,7 +28,8 @@ from app.admin_actions import (
     delete_comment_by_id,
     delete_school_by_id,
     update_school_by_id,
-    view_system_statistics
+    view_system_statistics,
+    export_top_schools_report
 )
 from app.school_actions import list_all_schools, view_school_rankings, search_schools_by_name, view_top_schools
 from app.persistence import load_system_data, save_system_data
@@ -75,6 +76,7 @@ def show_main_menu():
         print("11. Delete Selected User (Admin Only)")
         print("12. Delete a Comment (Admin Only)")
         print("13. View System Statistics (Admin Only)")
+        print("14. Export Top Schools Report (Admin Only)")
 
     print("0. Exit")
 
@@ -109,7 +111,7 @@ def main() -> None:
                 allowed_options.append("3")
 
             if current is not None and user_has_role(current, [ROLE_ADMIN]):
-                allowed_options.extend(["3", "8", "9", "10", "11", "12", "13"])
+                allowed_options.extend(["3", "8", "9", "10", "11", "12", "13","14"])
 
             choice = input("Select an option: ").strip()
 
@@ -210,6 +212,12 @@ def main() -> None:
                 if not check_access(current, [ROLE_ADMIN], print_func=print):
                     continue
                 view_system_statistics(print)
+
+            elif choice == "14":
+                # US13 – Export Top Schools Report (Admin Only)
+                if not check_access(current, [ROLE_ADMIN], print_func=print):
+                    continue
+                export_top_schools_report(print_func=print)
 
             elif choice == "0":
 
