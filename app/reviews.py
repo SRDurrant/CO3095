@@ -13,6 +13,7 @@ from .validation import validate_rating_input
 
 RATINGS: List[Dict] = []
 COMMENTS: List[Dict] = []
+FAVOURITES: List[Dict] = []
 
 def clear_ratings() -> None:
     RATINGS.clear()
@@ -55,6 +56,38 @@ def add_comment_record(
     }
     COMMENTS.append(comment)
     return comment
+
+def clear_favourites() -> None:
+    """
+    Clears all favourites (test helper).
+    """
+    FAVOURITES.clear()
+
+
+def find_favourite(user_id: int, school_id: str) -> Optional[Dict]:
+    """
+    Returns a favourite record if it exists for a (user, school) pair.
+    """
+    for fav in FAVOURITES:
+        if fav.get("user_id") == user_id and fav.get("school_id") == school_id:
+            return fav
+    return None
+
+
+def add_favourite_record(user_id: int, school_id: str, created_at: Optional[datetime] = None) -> Dict:
+    """
+    Creates and stores a favourite record.
+    """
+    if created_at is None:
+        created_at = datetime.now(timezone.utc)
+
+    fav = {
+        "user_id": user_id,
+        "school_id": school_id,
+        "created_at": created_at,
+    }
+    FAVOURITES.append(fav)
+    return fav
 
 def rate_school(
     input_func: Callable[[str], str] = input,
@@ -434,3 +467,57 @@ def delete_my_comment(
         msg = "Comment deleted successfully."
         print_func(msg)
         return True, deleted
+
+def favourite_school(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+) -> Tuple[bool, object]:
+    """
+    US26 - Favourite a School
+
+    Flow:
+    - user must be logged in
+    - user must be a student
+    - prompt for school_id
+    - '0' cancels
+    - empty school_id rejected (re-prompt)
+    - if already favourited -> no duplicate, return success
+    - else store favourite record and return success
+    """
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to favourite a school"
+        print_func(msg)
+        return False, msg
+
+    if current_user.get("role") != "student":
+        msg = "Only students can favourite a school"
+        print_func(msg)
+        return False, msg
+
+    print_func("\nFavourite a School")
+    print_func("Type '0' at any prompt to return to the previous menu.")
+
+    while True:
+        school_id = input_func("Enter the school ID to favourite: ").strip()
+
+        if school_id == "0":
+            msg = "Favourite cancelled by user"
+            print_func(msg)
+            return False, msg
+
+        if not school_id:
+            print_func("School ID cannot be empty.")
+            continue
+
+        # already favourited
+        existing = find_favourite(current_user["user_id"], school_id)
+        if existing is not None:
+            msg = f"School '{school_id}' is already in your favourites."
+            print_func(msg)
+            return True, existing
+
+        fav = add_favourite_record(current_user["user_id"], school_id)
+        msg = f"School '{school_id}' added to favourites."
+        print_func(msg)
+        return True, fav
