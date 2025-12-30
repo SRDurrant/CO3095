@@ -34,6 +34,7 @@ def list_all_schools(
     """
 
     schools = get_schools()
+    averages = _calculate_average_ratings()
 
     while True:
         if not schools:
@@ -46,7 +47,12 @@ def list_all_schools(
         for school in schools:
             school_id = school.get("school_id", "?")
             name = school.get("name", "?")
-            print_func(f"ID: {school_id} | Name: {name}")
+            avg = averages.get(str(school_id), 0.0)
+
+            if avg > 0:
+                print_func(f"ID: {school_id} | Name: {name} | Avg Rating: {avg:.2f}")
+            else:
+                print_func(f"ID: {school_id} | Name: {name} | Avg Rating: No ratings yet")
 
         print_func("\n1. View School Profile")
         print_func("0. Return to Main Menu")
@@ -80,6 +86,7 @@ def view_school_profile(
     """
 
     schools = get_schools()
+    averages = _calculate_average_ratings()
 
     print_func("\n=== View School Profile ===")
 
@@ -93,7 +100,7 @@ def view_school_profile(
         school_id_input = input_func("Enter the school ID to view profile: ").strip()
 
         if school_id_input == "0":
-            print_func("\nReturning to schools list.")
+            print_func("\nExiting interface.")
             return False
 
         if not school_id_input:
@@ -113,13 +120,20 @@ def view_school_profile(
 
         for school in schools:
             if school.get("school_id") == school_id:
+                avg = averages.get(str(school_id), 0.0)
+
                 print_func("\n=== School Details ===")
                 print_func(f"School ID: {school.get('school_id', '?')}")
                 print_func(f"Name: {school.get('name', '?')}")
                 print_func(f"Level: {school.get('level', '?').capitalize()}")
                 print_func(f"Location: {school.get('location', '?')}")
 
-                print_func("\nPress any key to return to schools list")
+                if avg > 0:
+                    print_func(f"Average Rating: {avg:.2f}")
+                else:
+                    print_func("Average Rating: No ratings yet")
+
+                print_func("\nPress any key to exit")
                 input_func("")
                 return True
 
@@ -289,19 +303,7 @@ def search_schools_by_name(
             return
 
         elif choice == "1":
-            for school in matching_schools:
-                school_id = school.get("school_id", "?")
-                name = school.get("name", "?")
-                level = school.get("level", "?")
-                location = school.get("location", "?")
-
-                print_func(f"ID: {school_id}")
-                print_func(f"Name: {name}")
-                print_func(f"Level: {level.capitalize()}")
-                print_func(f"Location: {location}")
-                print_func("\nEnter any key to return to search page")
-                input_func("")
-                continue
+            view_school_profile()
 
         elif choice == "2":
             continue
