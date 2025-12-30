@@ -5,6 +5,7 @@ Authentication and registration logic for US21
 from typing import Callable, Tuple, Optional, List, Dict
 from .data_store import get_users, add_user
 from .validation import validate_username_format, validate_password_format
+from app.system_log import log_event, log_error
 
 
 def find_user_by_username(users: List[Dict], username: str):
@@ -141,6 +142,7 @@ def register_user(
     }
 
     add_user(new_user)
+    log_event(f"New user registered: {username} (ID {new_user['user_id']})")
 
     print_func("Registration Successful: Welcome {}".format(username))
     return True, new_user
@@ -194,12 +196,13 @@ def login_user(
         if password != user.get("password"):
             print_func("\nLogin failed: Incorrect password")
             # Keeps the user in the loop and lets them try again
+            log_error(f"Login failed for username '{username}'")
             continue
 
         # if log in is successful
         from .data_store import set_current_user
         set_current_user(user)
-
+        log_event(f"User logged in: {username}")
         print_func("\nLogin successful, welcome {}".format(username))
         return True, user
 

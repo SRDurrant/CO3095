@@ -5,6 +5,7 @@ from app.data_store import get_users
 from app.data_store import add_school
 from app.data_store import get_schools
 from app.data_store import get_next_school_id
+from app.system_log import log_event, log_error
 from app.reviews import COMMENTS, RATINGS
 from app.school_actions import _calculate_average_ratings
 from app.validation import (
@@ -62,11 +63,13 @@ def delete_user_by_id(user_id: int, print_func: Callable = print) -> bool:
     for i, user in enumerate(users):
         if user.get("user_id") == user_id:
             if user.get("role") == "admin":
+                log_error(f"Attempt to delete admin account (ID {user_id})")
                 print_func("Error: Admin accounts cannot be deleted.")
                 return False
 
             deleted_user = users.pop(i)
             print_func(f"User '{deleted_user['username']}' (ID {user_id}) has been deleted.")
+            log_event(f"User deleted: {deleted_user['username']} (ID {user_id})")
             return True
 
     print_func("Error: User does not exist.")
