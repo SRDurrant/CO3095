@@ -13,7 +13,20 @@
       "role": "student"
     }
   ],
-  "schools": [],
+  "schools": [
+    {
+      "school_id": 1,
+      "name": "School One",
+      "level": "primary",
+      "location": "London"
+    },
+    {
+      "school_id": 2,
+      "name": "School Two",
+      "level": "secondary",
+      "location": "Manchester"
+    }
+  ],
   "ratings": [],
   "comments": []
 }
