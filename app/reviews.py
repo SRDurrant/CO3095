@@ -8,6 +8,7 @@ the data structures defined here.
 """
 from typing import Callable, Tuple, List, Dict, Optional
 from datetime import datetime, timezone
+
 from .data_store import get_current_user, SCHOOLS
 from .validation import validate_rating_input
 
@@ -15,8 +16,21 @@ RATINGS: List[Dict] = []
 COMMENTS: List[Dict] = []
 FAVOURITES: List[Dict] = []
 
+
 def clear_ratings() -> None:
     RATINGS.clear()
+
+
+def clear_comments() -> None:
+    COMMENTS.clear()
+
+
+def clear_favourites() -> None:
+    """
+    Clears all favourites (test helper).
+    """
+    FAVOURITES.clear()
+
 
 def find_rating(user_id: int, school_id: str) -> Optional[Dict]:
     for rating in RATINGS:
@@ -24,11 +38,13 @@ def find_rating(user_id: int, school_id: str) -> Optional[Dict]:
             return rating
     return None
 
+
 def set_rating(user_id: int, school_id: str, value: int) -> Dict:
     existing = find_rating(user_id, school_id)
     if existing is not None:
         existing["value"] = value
         return existing
+
     rating = {
         "user_id": user_id,
         "school_id": school_id,
@@ -37,8 +53,6 @@ def set_rating(user_id: int, school_id: str, value: int) -> Dict:
     RATINGS.append(rating)
     return rating
 
-def clear_comments() -> None:
-    COMMENTS.clear()
 
 def add_comment_record(
     user_id: int,
@@ -48,6 +62,7 @@ def add_comment_record(
 ) -> Dict:
     if created_at is None:
         created_at = datetime.now(timezone.utc)
+
     comment = {
         "user_id": user_id,
         "school_id": school_id,
@@ -56,12 +71,6 @@ def add_comment_record(
     }
     COMMENTS.append(comment)
     return comment
-
-def clear_favourites() -> None:
-    """
-    Clears all favourites (test helper).
-    """
-    FAVOURITES.clear()
 
 
 def find_favourite(user_id: int, school_id: str) -> Optional[Dict]:
@@ -74,7 +83,11 @@ def find_favourite(user_id: int, school_id: str) -> Optional[Dict]:
     return None
 
 
-def add_favourite_record(user_id: int, school_id: str, created_at: Optional[datetime] = None) -> Dict:
+def add_favourite_record(
+    user_id: int,
+    school_id: str,
+    created_at: Optional[datetime] = None
+) -> Dict:
     """
     Creates and stores a favourite record.
     """
@@ -89,6 +102,18 @@ def add_favourite_record(user_id: int, school_id: str, created_at: Optional[date
     FAVOURITES.append(fav)
     return fav
 
+
+def remove_favourite_record(user_id: int, school_id: str) -> bool:
+    """
+    Removes an existing favourite record. Returns True if removed, False if not found.
+    """
+    for i, fav in enumerate(FAVOURITES):
+        if fav.get("user_id") == user_id and fav.get("school_id") == school_id:
+            del FAVOURITES[i]
+            return True
+    return False
+
+
 def rate_school(
     input_func: Callable[[str], str] = input,
     print_func: Callable[[str], None] = print,
@@ -98,22 +123,27 @@ def rate_school(
         msg = "You must be logged in to rate a school"
         print_func(msg)
         return False, msg
+
     while True:
         print_func("\nRate a School")
         print_func("Type '0' at any prompt to return to the previous menu.")
         school_id = input_func("Enter the school ID to rate: ").strip()
+
         if school_id == "0":
             msg = "Rating cancelled by user"
             print_func(msg)
             return False, msg
+
         if not school_id:
             print_func("School ID cannot be empty.")
             continue
+
         break
 
     while True:
         rating_input = input_func("Enter your rating (1-5): ")
         is_valid, validation_msg = validate_rating_input(rating_input)
+
         if not is_valid:
             print_func(validation_msg)
             print_func("Type '0' to cancel or try again.")
@@ -123,11 +153,13 @@ def rate_school(
                 print_func(msg)
                 return False, msg
             continue
+
         value = int(rating_input.strip())
         rating = set_rating(current_user["user_id"], school_id, value)
         msg = f"Successfully rated school '{school_id}' with {value} stars."
         print_func(msg)
         return True, rating
+
 
 def add_comment(
     input_func: Callable[[str], str] = input,
@@ -139,48 +171,60 @@ def add_comment(
         msg = "You must be logged in to add a comment"
         print_func(msg)
         return False, msg
+
     while True:
         print_func("\nAdd a Comment")
         print_func("Type '0' at any prompt to return to the previous menu.")
         school_id = input_func("Enter the school ID to comment on: ").strip()
+
         if school_id == "0":
             msg = "Comment cancelled by user"
             print_func(msg)
             return False, msg
+
         if not school_id:
             print_func("School ID cannot be empty.")
             continue
+
         break
 
     while True:
         raw_text = input_func("Enter your comment: ")
         if raw_text is None:
             raw_text = ""
+
         stripped = raw_text.strip()
+
         if stripped == "0":
             msg = "Comment cancelled by user"
             print_func(msg)
             return False, msg
+
         if stripped == "":
             print_func("Comment cannot be empty.")
             print_func("Type '0' to cancel or enter a non-empty comment.")
-        elif len(stripped) > max_length:
+            continue
+
+        if len(stripped) > max_length:
             print_func(f"Comment must be at most {max_length} characters.")
             print_func("Type '0' to cancel or enter a shorter comment.")
-        else:
-            comment = add_comment_record(
-                user_id=current_user["user_id"],
-                school_id=school_id,
-                text=stripped,
-            )
-            msg = "Comment added successfully."
-            print_func(msg)
-            return True, comment
+            continue
+
+        comment = add_comment_record(
+            user_id=current_user["user_id"],
+            school_id=school_id,
+            text=stripped,
+        )
+        msg = "Comment added successfully."
+        print_func(msg)
+        return True, comment
+
 
 def get_comments_for_school(school_id: str, newest_first: bool = True) -> List[Dict]:
     matching = [c for c in COMMENTS if c.get("school_id") == school_id]
     matching.sort(key=lambda c: c["created_at"], reverse=newest_first)
     return matching
+
 
 def view_comments_for_school(
     input_func: Callable[[str], str] = input,
@@ -189,19 +233,23 @@ def view_comments_for_school(
     print_func("\nView Comments for a School")
     print_func("Type '0' to return to the previous menu.")
     school_id = input_func("Enter the school ID to view comments: ").strip()
+
     if school_id == "0":
         msg = "Viewing comments cancelled by user"
         print_func(msg)
         return False, msg
+
     if not school_id:
         msg = "School ID cannot be empty."
         print_func(msg)
         return False, msg
+
     comments = get_comments_for_school(school_id)
     if not comments:
         msg = f"No comments found for school '{school_id}'."
         print_func(msg)
         return True, []
+
     print_func(f"\nComments for school '{school_id}':")
     for c in comments:
         ts = c["created_at"].strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -243,13 +291,6 @@ def edit_my_comment(
 ) -> Tuple[bool, object]:
     """
     US16 - Edit My Comment
-
-    Flow:
-    - user must be logged in
-    - ask for school id
-    - show only the user's comments for that school
-    - user selects which comment to edit
-    - validate new comment text and update in place
     """
     current_user = get_current_user()
     if current_user is None:
@@ -306,6 +347,7 @@ def edit_my_comment(
         new_text = input_func("Enter the updated comment text: ")
         if new_text is None:
             new_text = ""
+
         if new_text.strip() == "0":
             msg = "Edit comment cancelled by user"
             print_func(msg)
@@ -325,14 +367,6 @@ def edit_my_comment(
 def get_average_rating_for_school(school_id: str) -> Optional[float]:
     """
     US19 helper: compute average rating for a school.
-
-    Inputs:
-        school_id (str): school identifier to compute average for
-
-    Returns:
-        float | None:
-            - average rating if at least one rating exists
-            - None if no ratings exist for that school
     """
     matching = [r for r in RATINGS if r.get("school_id") == school_id]
     if not matching:
@@ -348,14 +382,6 @@ def view_average_rating_for_school(
 ) -> Tuple[bool, object]:
     """
     US19 - View Average Rating for a School
-
-    Flow:
-    - ask for school ID
-    - allow cancel with '0'
-    - validate school id not empty
-    - compute average from RATINGS
-    - if none found, return True with None
-    - else print average and return it
     """
     print_func("\nView Average Rating for a School")
     print_func("Type '0' to return to the previous menu.")
@@ -387,12 +413,6 @@ def view_average_rating_for_school(
 def delete_comment_record(comment: Dict) -> Dict:
     """
     Delete a specific comment dict from COMMENTS.
-
-    Inputs:
-        comment (dict): comment dict to remove
-
-    Returns:
-        dict: the removed comment
     """
     COMMENTS.remove(comment)
     return comment
@@ -404,13 +424,6 @@ def delete_my_comment(
 ) -> Tuple[bool, object]:
     """
     US17 - Delete My Comment
-
-    Flow:
-    - user must be logged in
-    - ask for school id
-    - list only the user's comments for that school
-    - user selects which comment to delete
-    - deletes it from COMMENTS
     """
     current_user = get_current_user()
     if current_user is None:
@@ -468,6 +481,7 @@ def delete_my_comment(
         print_func(msg)
         return True, deleted
 
+
 def get_favourites_for_user(user_id: int) -> List[Dict]:
     """
     Returns all favourite records for a given user.
@@ -485,21 +499,50 @@ def _find_school_name(school_id: str) -> Optional[str]:
     return None
 
 
+def remove_favourite_school(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+) -> Tuple[bool, object]:
+    """
+    US27 - Remove Favourite School
+    """
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to remove a favourite"
+        print_func(msg)
+        return False, msg
+
+    print_func("\nRemove Favourite School")
+    print_func("Type '0' at any prompt to return to the previous menu.")
+
+    school_id = input_func("Enter the school ID to remove from favourites: ").strip()
+    if school_id == "0":
+        msg = "Remove favourite cancelled by user"
+        print_func(msg)
+        return False, msg
+
+    if not school_id:
+        msg = "School ID cannot be empty."
+        print_func(msg)
+        return False, msg
+
+    removed = remove_favourite_record(current_user["user_id"], school_id)
+    if not removed:
+        msg = f"School '{school_id}' is not in your favourites."
+        print_func(msg)
+        return True, False
+
+    msg = f"Removed school '{school_id}' from favourites."
+    print_func(msg)
+    return True, True
+
+
 def favourite_school(
     input_func: Callable[[str], str] = input,
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
     """
     US26 - Favourite a School
-
-    Flow:
-    - user must be logged in
-    - user must be a student
-    - prompt for school_id
-    - '0' cancels
-    - empty school_id rejected (re-prompt)
-    - if already favourited -> no duplicate, return success
-    - else store favourite record and return success
     """
     current_user = get_current_user()
     if current_user is None:
