@@ -14,7 +14,8 @@ from collections import defaultdict
 
 from app.data_store import get_schools
 from app.validation import validate_school_id_exists
-from app.reviews import RATINGS
+from app.reviews import RATINGS, COMMENTS
+from app.data_store import SCHOOLS
 
 
 def list_all_schools(
@@ -308,3 +309,53 @@ def search_schools_by_name(
 
         else:
             print_func("Invalid option, please try again")
+
+def view_trending_schools(
+    limit: int = 5,
+    print_func: Callable[[str], None] = print,
+):
+    """
+    US36 – View Trending Schools based on review activity.
+
+    Trending score = number of ratings + number of comments.
+    """
+
+    if not SCHOOLS:
+        print_func("No schools available.")
+        return
+
+    activity_count = defaultdict(int)
+
+    # Count ratings
+    for rating in RATINGS:
+        sid = str(rating.get("school_id"))
+        activity_count[sid] += 1
+
+    # Count comments
+    for comment in COMMENTS:
+        sid = str(comment.get("school_id"))
+        activity_count[sid] += 1
+
+    # Build sortable list
+    trending = []
+    for school in SCHOOLS:
+        sid = str(school.get("school_id"))
+        score = activity_count.get(sid, 0)
+        trending.append((school, score))
+
+    # Sort by activity score (descending)
+    trending.sort(key=lambda x: x[1], reverse=True)
+    trending = trending[:limit]
+
+    print_func("\n=== Trending Schools ===")
+
+    if all(score == 0 for _, score in trending):
+        print_func("No recent activity for any school.")
+        return
+
+    for idx, (school, score) in enumerate(trending, start=1):
+        print_func(
+            f"{idx}. {school.get('name')} "
+            f"(ID {school.get('school_id')}) - "
+            f"Activity Score: {score}"
+        )

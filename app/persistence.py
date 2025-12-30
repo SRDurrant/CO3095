@@ -18,6 +18,7 @@ from typing import Any, Dict, Callable
 
 from app.data_store import get_users, get_schools, USERS, SCHOOLS
 from app.reviews import RATINGS, COMMENTS, FAVOURITES
+from app.system_log import log_event, log_error
 
 
 def serialize_comment(comment: Dict[str, Any]) -> Dict[str, Any]:
@@ -188,10 +189,12 @@ def load_system_data(
             FAVOURITES.extend(snapshot['favourites'])
 
         print_func(f"System data loaded successfully from {file_path}.")
+        log_event(f"System data saved to {file_path}")
         return True
 
     except Exception as error:
         print_func(
             f"Failed to load system data from {file_path}. Reason: {error}"
         )
+        log_error(f"Failed to load system data: {error}")
         return False

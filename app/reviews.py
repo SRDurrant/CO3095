@@ -8,7 +8,7 @@ the data structures defined here.
 """
 from typing import Callable, Tuple, List, Dict, Optional
 from datetime import datetime, timezone
-from .data_store import get_current_user
+from .data_store import get_current_user, SCHOOLS
 from .validation import validate_rating_input
 
 RATINGS: List[Dict] = []
@@ -468,6 +468,23 @@ def delete_my_comment(
         print_func(msg)
         return True, deleted
 
+def get_favourites_for_user(user_id: int) -> List[Dict]:
+    """
+    Returns all favourite records for a given user.
+    """
+    return [f for f in FAVOURITES if f.get("user_id") == user_id]
+
+
+def _find_school_name(school_id: str) -> Optional[str]:
+    """
+    Best-effort helper to show school name if SCHOOLS is populated.
+    """
+    for s in SCHOOLS:
+        if str(s.get("school_id")) == str(school_id):
+            return s.get("name")
+    return None
+
+
 def favourite_school(
     input_func: Callable[[str], str] = input,
     print_func: Callable[[str], None] = print,
@@ -510,7 +527,6 @@ def favourite_school(
             print_func("School ID cannot be empty.")
             continue
 
-        # already favourited
         existing = find_favourite(current_user["user_id"], school_id)
         if existing is not None:
             msg = f"School '{school_id}' is already in your favourites."
@@ -521,3 +537,43 @@ def favourite_school(
         msg = f"School '{school_id}' added to favourites."
         print_func(msg)
         return True, fav
+
+
+def view_favourite_schools(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+) -> Tuple[bool, object]:
+    """
+    US28 - View Favourite Schools
+    """
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to view favourites"
+        print_func(msg)
+        return False, msg
+
+    print_func("\nView Favourite Schools")
+    print_func("Type '0' to return to the previous menu.")
+    choice = input_func("Press Enter to view favourites (or 0 to cancel): ").strip()
+
+    if choice == "0":
+        msg = "Viewing favourites cancelled by user"
+        print_func(msg)
+        return False, msg
+
+    favs = get_favourites_for_user(current_user["user_id"])
+    if not favs:
+        msg = "You have no favourite schools yet."
+        print_func(msg)
+        return True, []
+
+    print_func("\nYour favourite schools:")
+    for f in favs:
+        sid = f.get("school_id")
+        name = _find_school_name(str(sid))
+        if name:
+            print_func(f"- {sid}: {name}")
+        else:
+            print_func(f"- {sid}")
+
+    return True, favs
