@@ -13,9 +13,13 @@ from .validation import validate_rating_input
 
 RATINGS: List[Dict] = []
 COMMENTS: List[Dict] = []
+FAVOURITES: List[Dict] = []
 
 def clear_ratings() -> None:
     RATINGS.clear()
+
+def clear_favourites() -> None:
+    FAVOURITES.clear()
 
 def find_rating(user_id: int, school_id: str) -> Optional[Dict]:
     for rating in RATINGS:
@@ -434,3 +438,69 @@ def delete_my_comment(
         msg = "Comment deleted successfully."
         print_func(msg)
         return True, deleted
+
+def add_favourite_record(user_id: int, school_id: str) -> Dict:
+    # avoid dupes
+    for fav in FAVOURITES:
+        if fav.get("user_id") == user_id and fav.get("school_id") == school_id:
+            return fav
+
+    fav = {"user_id": user_id, "school_id": school_id}
+    FAVOURITES.append(fav)
+    return fav
+
+
+def get_favourites_for_user(user_id: int) -> List[Dict]:
+    return [f for f in FAVOURITES if f.get("user_id") == user_id]
+
+
+def remove_favourite_record(user_id: int, school_id: str) -> bool:
+    for i, fav in enumerate(FAVOURITES):
+        if fav.get("user_id") == user_id and fav.get("school_id") == school_id:
+            del FAVOURITES[i]
+            return True
+    return False
+
+
+def remove_favourite_school(
+    input_func: Callable[[str], str] = input,
+    print_func: Callable[[str], None] = print,
+) -> Tuple[bool, object]:
+    """
+    US27 - Remove Favourite School
+
+    Flow:
+    - must be logged in
+    - ask for school_id
+    - remove from favourites if exists
+    - allow cancel via '0'
+    """
+    current_user = get_current_user()
+    if current_user is None:
+        msg = "You must be logged in to remove a favourite"
+        print_func(msg)
+        return False, msg
+
+    print_func("\nRemove Favourite School")
+    print_func("Type '0' at any prompt to return to the previous menu.")
+
+    school_id = input_func("Enter the school ID to remove from favourites: ").strip()
+    if school_id == "0":
+        msg = "Remove favourite cancelled by user"
+        print_func(msg)
+        return False, msg
+
+    if not school_id:
+        msg = "School ID cannot be empty."
+        print_func(msg)
+        return False, msg
+
+    removed = remove_favourite_record(current_user["user_id"], school_id)
+    if not removed:
+        msg = f"School '{school_id}' is not in your favourites."
+        print_func(msg)
+        return True, False
+
+    msg = f"Removed school '{school_id}' from favourites."
+    print_func(msg)
+    return True, True
