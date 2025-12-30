@@ -28,9 +28,12 @@ from app.admin_actions import (
     delete_comment_by_id,
     delete_school_by_id,
     update_school_by_id,
-    view_system_statistics
+    view_system_statistics, view_top_contributors
+    view_system_statistics,
+    export_top_schools_report
 )
-from app.school_actions import list_all_schools, view_school_rankings, search_schools_by_name, view_top_schools
+from app.school_actions import list_all_schools, view_school_rankings, search_schools_by_name, view_top_schools, \
+    view_trending_schools
 from app.persistence import load_system_data, save_system_data
 
 DEFAULT_SYSTEM_DATA_PATH = "system_data.json"
@@ -67,6 +70,7 @@ def show_main_menu():
     print("5. View School Rankings")
     print("6. View Top Schools by Category")
     print("7. Search for Schools")
+    print("15. View Trending Schools")
 
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("8. Delete School (Admin Only)")
@@ -75,6 +79,8 @@ def show_main_menu():
         print("11. Delete Selected User (Admin Only)")
         print("12. Delete a Comment (Admin Only)")
         print("13. View System Statistics (Admin Only)")
+        print("14. Export Top Schools Report (Admin Only)")
+        print("16. View Top Contributors (Admin Only)")
 
     print("0. Exit")
 
@@ -102,14 +108,16 @@ def main() -> None:
             show_main_menu()
             current = get_current_user()
 
-            allowed_options = ["1", "2", "4", "5", "6", "7", "0"]
+            allowed_options = ["1", "2", "4", "5", "6", "7", "15", "0"]
 
 
             if current is None:
                 allowed_options.append("3")
 
             if current is not None and user_has_role(current, [ROLE_ADMIN]):
-                allowed_options.extend(["3", "8", "9", "10", "11", "12", "13"])
+                allowed_options.extend(["3", "8", "9", "10", "11", "12", "13", "14", "16"])
+
+
 
             choice = input("Select an option: ").strip()
 
@@ -211,6 +219,21 @@ def main() -> None:
                     continue
                 view_system_statistics(print)
 
+            elif choice == "14":
+                # US13 – Export Top Schools Report (Admin Only)
+                if not check_access(current, [ROLE_ADMIN], print_func=print):
+                    continue
+                export_top_schools_report(print_func=print)
+                
+            elif choice == "15":
+                # US36 - View Trending Schools
+                view_trending_schools(print_func=print)
+
+            elif choice == "16":
+                if not check_access(current, [ROLE_ADMIN], print_func=print):
+                    continue
+                view_top_contributors(print_func=print)
+                
             elif choice == "0":
 
                 save_system_data(file_path = DEFAULT_SYSTEM_DATA_PATH, print_func = print)
