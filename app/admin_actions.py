@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Callable
 from datetime import datetime
 from collections import defaultdict
@@ -449,6 +450,57 @@ def view_system_statistics(print_func=print) -> None:
     print_func(f"Total Ratings: {len(RATINGS)}")
     print_func(f"Total Comments: {len(COMMENTS)}")
 
+def view_top_contributors(
+    limit: int = 5,
+    print_func: Callable[[str], None] = print,
+):
+    """
+    US37 – View users who contribute the most reviews/comments.
+
+    Contribution score = number of ratings + number of comments.
+    """
+
+    users = get_users()
+    if not users:
+        print_func("No registered users found.")
+        return
+
+    # Count contributions per user
+    contribution_count = defaultdict(int)
+
+    for rating in RATINGS:
+        uid = rating.get("user_id")
+        if uid is not None:
+            contribution_count[uid] += 1
+
+    for comment in COMMENTS:
+        uid = comment.get("user_id")
+        if uid is not None:
+            contribution_count[uid] += 1
+
+    # Build sortable list
+    contributors = []
+    for user in users:
+        uid = user.get("user_id")
+        score = contribution_count.get(uid, 0)
+        contributors.append((user, score))
+
+    # Sort by contribution score descending
+    contributors.sort(key=lambda x: x[1], reverse=True)
+    contributors = contributors[:limit]
+
+    print_func("\n=== Top Contributors ===")
+
+    if all(score == 0 for _, score in contributors):
+        print_func("No contributions yet.")
+        return
+
+    for idx, (user, score) in enumerate(contributors, start=1):
+        print_func(
+            f"{idx}. {user.get('username')} "
+            f"(ID {user.get('user_id')}) - "
+            f"Contributions: {score}"
+        )
 def get_top_schools_summary(limit: int = 3):
     """
     Builds a structured summary of top schools per level.

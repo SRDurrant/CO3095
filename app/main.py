@@ -28,6 +28,7 @@ from app.admin_actions import (
     delete_comment_by_id,
     delete_school_by_id,
     update_school_by_id,
+    view_system_statistics, view_top_contributors
     view_system_statistics,
     export_top_schools_report
 )
@@ -79,6 +80,7 @@ def show_main_menu():
         print("12. Delete a Comment (Admin Only)")
         print("13. View System Statistics (Admin Only)")
         print("14. Export Top Schools Report (Admin Only)")
+        print("16. View Top Contributors (Admin Only)")
 
     print("0. Exit")
 
@@ -113,7 +115,9 @@ def main() -> None:
                 allowed_options.append("3")
 
             if current is not None and user_has_role(current, [ROLE_ADMIN]):
-                allowed_options.extend(["3", "8", "9", "10", "11", "12", "13","14"])
+                allowed_options.extend(["3", "8", "9", "10", "11", "12", "13", "14", "16"])
+
+
 
             choice = input("Select an option: ").strip()
 
@@ -225,6 +229,11 @@ def main() -> None:
                 # US36 - View Trending Schools
                 view_trending_schools(print_func=print)
 
+            elif choice == "16":
+                if not check_access(current, [ROLE_ADMIN], print_func=print):
+                    continue
+                view_top_contributors(print_func=print)
+                
             elif choice == "0":
 
                 save_system_data(file_path = DEFAULT_SYSTEM_DATA_PATH, print_func = print)
