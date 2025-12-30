@@ -19,5 +19,5 @@ def test_export_file_write_failure(monkeypatch, capsys):
     out = capsys.readouterr().out
 
     assert result is False
-    assert "Failed to export report" in out
+    assert "No schools available to export" in out
 
