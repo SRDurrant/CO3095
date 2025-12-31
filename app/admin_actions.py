@@ -1,9 +1,14 @@
+from collections import defaultdict
 from typing import Callable
+from datetime import datetime
+from collections import defaultdict
 from app.data_store import get_users
 from app.data_store import add_school
 from app.data_store import get_schools
 from app.data_store import get_next_school_id
+from app.system_log import log_event, log_error
 from app.reviews import COMMENTS, RATINGS
+from app.school_actions import _calculate_average_ratings
 from app.validation import (
     validate_school_name,
     validate_school_level,
@@ -59,11 +64,13 @@ def delete_user_by_id(user_id: int, print_func: Callable = print) -> bool:
     for i, user in enumerate(users):
         if user.get("user_id") == user_id:
             if user.get("role") == "admin":
+                log_error(f"Attempt to delete admin account (ID {user_id})")
                 print_func("Error: Admin accounts cannot be deleted.")
                 return False
 
             deleted_user = users.pop(i)
             print_func(f"User '{deleted_user['username']}' (ID {user_id}) has been deleted.")
+            log_event(f"User deleted: {deleted_user['username']} (ID {user_id})")
             return True
 
     print_func("Error: User does not exist.")
@@ -490,3 +497,122 @@ def view_system_statistics(print_func=print) -> None:
     print_func(f"Total Schools: {len(get_schools())}")
     print_func(f"Total Ratings: {len(RATINGS)}")
     print_func(f"Total Comments: {len(COMMENTS)}")
+
+def view_top_contributors(
+    limit: int = 5,
+    print_func: Callable[[str], None] = print,
+):
+    """
+    US37 – View users who contribute the most reviews/comments.
+
+    Contribution score = number of ratings + number of comments.
+    """
+
+    users = get_users()
+    if not users:
+        print_func("No registered users found.")
+        return
+
+    # Count contributions per user
+    contribution_count = defaultdict(int)
+
+    for rating in RATINGS:
+        uid = rating.get("user_id")
+        if uid is not None:
+            contribution_count[uid] += 1
+
+    for comment in COMMENTS:
+        uid = comment.get("user_id")
+        if uid is not None:
+            contribution_count[uid] += 1
+
+    # Build sortable list
+    contributors = []
+    for user in users:
+        uid = user.get("user_id")
+        score = contribution_count.get(uid, 0)
+        contributors.append((user, score))
+
+    # Sort by contribution score descending
+    contributors.sort(key=lambda x: x[1], reverse=True)
+    contributors = contributors[:limit]
+
+    print_func("\n=== Top Contributors ===")
+
+    if all(score == 0 for _, score in contributors):
+        print_func("No contributions yet.")
+        return
+
+    for idx, (user, score) in enumerate(contributors, start=1):
+        print_func(
+            f"{idx}. {user.get('username')} "
+            f"(ID {user.get('user_id')}) - "
+            f"Contributions: {score}"
+        )
+def get_top_schools_summary(limit: int = 3):
+    """
+    Builds a structured summary of top schools per level.
+
+    Returns:
+        Dict[str, List[Tuple[school_dict, avg_rating]]]
+    """
+    schools = get_schools()
+    averages = _calculate_average_ratings()
+    grouped = defaultdict(list)
+
+    for school in schools:
+        avg = averages.get(str(school.get("school_id")), 0.0)
+        grouped[school.get("level", "unknown")].append((school, avg))
+
+    for level in grouped:
+        grouped[level].sort(key=lambda x: x[1], reverse=True)
+        grouped[level] = grouped[level][:limit]
+
+    return grouped
+
+def export_top_schools_report(
+    file_path: str = "top_schools_report.txt",
+    limit: int = 3,
+    print_func: Callable[[str], None] = print,
+) -> bool:
+    """
+    US13 – Export Top Schools Summary Report
+
+    Writes a human-readable text report of top schools per category.
+
+    Returns:
+        bool: True if export successful, False otherwise
+    """
+
+    summary = get_top_schools_summary(limit)
+
+    if not summary:
+        print_func("No schools available to export.")
+        return False
+
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("Top Schools Summary Report\n")
+            f.write("=" * 30 + "\n")
+            f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+
+            for level, schools in summary.items():
+                f.write(f"{level.capitalize()} Schools:\n")
+                if not schools:
+                    f.write("  No schools available\n\n")
+                    continue
+
+                for idx, (school, avg) in enumerate(schools, start=1):
+                    f.write(
+                        f"  {idx}. {school.get('name')} "
+                        f"(ID {school.get('school_id')}) - "
+                        f"Avg Rating: {avg:.2f}\n"
+                    )
+                f.write("\n")
+
+        print_func(f"Top schools report exported successfully to {file_path}.")
+        return True
+
+    except Exception as e:
+        print_func(f"Failed to export report. Reason: {e}")
+        return False

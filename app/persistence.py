@@ -6,6 +6,7 @@ Saves the in-memory state into a JSON file:
 - SCHOOLS
 - RATINGS
 - COMMENTS
+- FAVOURITES
 """
 
 from __future__ import annotations
@@ -16,7 +17,9 @@ from datetime import datetime
 from typing import Any, Dict, Callable
 
 from app.data_store import get_users, get_schools, USERS, SCHOOLS
-from app.reviews import RATINGS, COMMENTS
+from app.reviews import RATINGS, COMMENTS, FAVOURITES
+from app.system_log import log_event, log_error
+
 
 def serialize_comment(comment: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -59,12 +62,14 @@ def build_system_snapshot() -> Dict[str, Any]:
     schools = list(get_schools())
     ratings = list(RATINGS)
     comments = [serialize_comment(c) for c in COMMENTS]
+    favourites = list(FAVOURITES)
 
     return {
         'users': users,
         'schools': schools,
         'ratings': ratings,
-        'comments': comments
+        'comments': comments,
+        'favourites': favourites,
     }
 
 
@@ -167,19 +172,29 @@ def load_system_data(
 
         USERS.clear()
         USERS.extend(snapshot['users'])
+
         SCHOOLS.clear()
         SCHOOLS.extend(snapshot['schools'])
+
         RATINGS.clear()
         RATINGS.extend(snapshot['ratings'])
+
         COMMENTS.clear()
         for comment in snapshot['comments']:
             COMMENTS.append(deserialize_comment(comment))
 
+        # favourites are optional to preserve backward compatibility
+        FAVOURITES.clear()
+        if 'favourites' in snapshot and isinstance(snapshot['favourites'], list):
+            FAVOURITES.extend(snapshot['favourites'])
+
         print_func(f"System data loaded successfully from {file_path}.")
+        log_event(f"System data saved to {file_path}")
         return True
 
     except Exception as error:
         print_func(
             f"Failed to load system data from {file_path}. Reason: {error}"
         )
+        log_error(f"Failed to load system data: {error}")
         return False
