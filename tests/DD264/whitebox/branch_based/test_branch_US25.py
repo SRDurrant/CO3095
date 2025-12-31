@@ -49,7 +49,7 @@ def test_check_access_branch_not_logged_in_both_messages():
 
     assert allowed is False
     assert any("must be logged in" in m for m in messages)
-    assert any("do not have permission" in m for m in messages)
+    assert not any("do not have permission" in m for m in messages)
 
 
 def test_check_access_branch_insufficient_role():

@@ -58,6 +58,7 @@ def check_access(
 
     if current_user is None:
         print_func("You must be logged in to perform an action")
+        return False
 
     if not user_has_role(current_user, required_roles):
         print_func("You do not have permission to perform this action")

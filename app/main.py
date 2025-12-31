@@ -221,7 +221,7 @@ def main() -> None:
                     continue
 
                 try:
-                    cid = int(input("Enter User ID to delete: ").strip())
+                    cid = int(input("Enter Comment ID to delete: ").strip())
                 except ValueError:
                     print("Invalid input. Please enter a number.")
                     continue
