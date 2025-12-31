@@ -59,7 +59,7 @@ def test_check_access_denies_when_not_logged_in():
 
     assert allowed is False
     assert any("must be logged in" in m for m in messages)
-    assert any("do not have permission" in m for m in messages)
+    assert not any("do not have permission" in m for m in messages)
 
 
 def test_check_access_denies_when_role_insufficient():
