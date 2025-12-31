@@ -30,12 +30,13 @@ from app.admin_actions import (
     delete_comment_by_id,
     delete_school_by_id,
     update_school_by_id,
-    view_system_statistics, view_top_contributors
+    view_system_statistics, 
+    view_top_contributors,
     view_system_statistics,
     export_top_schools_report
 )
 from app.school_actions import list_all_schools, view_school_rankings, search_schools_by_name, view_top_schools, \
-    view_trending_schools
+    view_trending_schools, compare_two_schools
 from app.persistence import load_system_data, save_system_data
 
 DEFAULT_SYSTEM_DATA_PATH = "system_data.json"
@@ -73,7 +74,7 @@ def show_main_menu():
     print("6. View Top Schools by Category")
     print("7. Search for Schools")
     print("15. View Trending Schools")
-    print("17. Compare Two Schools)
+    print("17. Compare Two Schools")
 
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("8. Delete School (Admin Only)")
