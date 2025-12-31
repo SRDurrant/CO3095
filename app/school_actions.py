@@ -4,7 +4,7 @@ For school-related actions for the system
 Implements:
 - US5 - View School Profile
 - US6 - List All Schools
-
+- US7 - Filter Schools by Attributes
 - US8 - Search Schools by Name
 - US9 - Sort Schools by Rating
 - US10 - Compare Two Schools
@@ -38,6 +38,7 @@ def list_all_schools(
     """
 
     schools = get_schools()
+    averages = _calculate_average_ratings()
 
     while True:
         if not schools:
@@ -50,10 +51,15 @@ def list_all_schools(
         for school in schools:
             school_id = school.get("school_id", "?")
             name = school.get("name", "?")
-            print_func(f"ID: {school_id} | Name: {name}")
+            avg = averages.get(str(school_id), 0.0)
+
+            if avg > 0:
+                print_func(f"ID: {school_id} | Name: {name} | Avg Rating: {avg:.2f}")
+            else:
+                print_func(f"ID: {school_id} | Name: {name} | Avg Rating: No ratings yet")
 
         print_func("\n1. View School Profile")
-
+        print_func("2. Filter Schools")
         print_func("3. Sort Schools by Rating")
         print_func("0. Return to Main Menu")
 
@@ -65,8 +71,8 @@ def list_all_schools(
         elif choice == "1":
             view_school_profile(input_func, print_func)
 
-
-
+        elif choice == "2":
+            filter_schools(input_func, print_func)
 
         elif choice == "3":
             sort_schools_by_rating(input_func, print_func)
@@ -92,6 +98,7 @@ def view_school_profile(
     """
 
     schools = get_schools()
+    averages = _calculate_average_ratings()
 
     print_func("\n=== View School Profile ===")
 
@@ -101,11 +108,11 @@ def view_school_profile(
         print_func(f"ID: {school_id} | Name: {name}")
 
     while True:
-        print_func("\nType '0' to return to schools list")
+        print_func("\nType '0' to return to list of schools")
         school_id_input = input_func("Enter the school ID to view profile: ").strip()
 
         if school_id_input == "0":
-            print_func("\nReturning to schools list.")
+            print_func("\nExiting Viewing School Profile(s).")
             return False
 
         if not school_id_input:
@@ -125,13 +132,20 @@ def view_school_profile(
 
         for school in schools:
             if school.get("school_id") == school_id:
+                avg = averages.get(str(school_id), 0.0)
+
                 print_func("\n=== School Details ===")
                 print_func(f"School ID: {school.get('school_id', '?')}")
                 print_func(f"Name: {school.get('name', '?')}")
                 print_func(f"Level: {school.get('level', '?').capitalize()}")
                 print_func(f"Location: {school.get('location', '?')}")
 
-                print_func("\nPress any key to return to schools list")
+                if avg > 0:
+                    print_func(f"Average Rating: {avg:.2f}")
+                else:
+                    print_func("Average Rating: No ratings yet")
+
+                print_func("\nPress any key to exit")
                 input_func("")
                 return True
 
@@ -254,6 +268,7 @@ def search_schools_by_name(
     """
 
     schools = get_schools()
+    averages = _calculate_average_ratings()
 
     while True:
         print_func("\n=== Search Schools ===")
@@ -262,7 +277,7 @@ def search_schools_by_name(
         keyword = input_func("Enter search: ").strip()
 
         if keyword == "0":
-            print_func("\nReturning to main menu.")
+            print_func("\nReturning to Main Menu.")
             return
 
         if not keyword:
@@ -290,32 +305,212 @@ def search_schools_by_name(
 
             print_func(f"ID: {school_id} | Name: {name}")
 
-        print_func("\n1. View School Profile")
+        print_func("\n1. View School Profile(s)")
         print_func("2. Search Again")
         print_func("0. Return to Main Menu")
 
         choice = input_func("Select an option: ").strip()
 
         if choice == "0":
-            print_func("\nReturning to main menu.")
+            print_func("\nReturning to Main Menu.")
             return
 
         elif choice == "1":
             for school in matching_schools:
                 school_id = school.get("school_id", "?")
                 name = school.get("name", "?")
-                level = school.get("level", "?")
                 location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
 
-                print_func(f"ID: {school_id}")
-                print_func(f"Name: {name}")
-                print_func(f"Level: {level.capitalize()}")
-                print_func(f"Location: {location}")
-                print_func("\nEnter any key to return to search page")
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Location: {location} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Location: {location} | Avg Rating: No ratings yet")
+
+                print_func("\nPress any key to exit")
                 input_func("")
-                continue
+                return
 
         elif choice == "2":
+            continue
+
+        else:
+            print_func("Invalid option, please try again")
+
+
+def filter_schools(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> None:
+    """
+    US7 - Filter Schools by Attributes
+    As a user, I want to filter schools by attributes such as location, type, or rating
+    so I can find relevant results.
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+    schools = get_schools()
+
+    while True:
+        print_func("\n=== Filter Schools ===")
+        print_func("1. Filter by Location")
+        print_func("2. Filter by Level")
+        print_func("3. Filter by Minimum Rating")
+        print_func("0. Return to Schools List")
+
+        choice = input_func("Select filter type: ").strip()
+
+        if choice == "0":
+            print_func("\nExiting Filtering Schools.")
+            return
+
+        elif choice == "1":
+            # Filter by location
+            print_func("\nType '0' to cancel")
+            location = input_func("Enter location to filter by: ").strip()
+
+            if location == "0":
+                print_func("\nExiting Filtering Schools.")
+                return
+
+            if not location:
+                print_func("Error: Location cannot be empty.")
+                continue
+
+            location_lower = location.lower()
+            filtered = [
+                school for school in schools
+                if location_lower in school.get("location", "").lower()
+            ]
+
+            if not filtered:
+                print_func(f"\nNo schools found in location '{location}'.")
+                continue
+
+            averages = _calculate_average_ratings()
+
+            print_func(f"\n=== Schools in '{location}' ===")
+            print_func(f"Found {len(filtered)} school(s):\n")
+
+            for school in filtered:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Avg Rating: No ratings yet")
+
+            print_func("\nEnter any other key to return to Filter Menu")
+            input_func("")
+            continue
+
+        elif choice == "2":
+            # Filter by level
+            print_func("\nSelect level:")
+            print_func("1. Primary")
+            print_func("2. Secondary")
+            print_func("3. Combined")
+            print_func("0. Cancel")
+
+            level_choice = input_func("Enter choice (1-3): ").strip()
+
+            if level_choice == "0":
+                print_func("\nExiting Filtering Schools.")
+                return
+
+            level_map = {
+                "1": "primary",
+                "2": "secondary",
+                "3": "combined"
+            }
+
+            if level_choice not in level_map:
+                print_func("Error: Invalid selection.")
+                continue
+
+            selected_level = level_map[level_choice]
+            filtered = [
+                school for school in schools
+                if school.get("level", "").lower() == selected_level
+            ]
+
+            if not filtered:
+                print_func(f"\nNo {selected_level} schools found.")
+                continue
+
+            averages = _calculate_average_ratings()
+
+            print_func(f"\n=== {selected_level.capitalize()} Schools ===")
+            print_func(f"Found {len(filtered)} school(s):\n")
+
+            for school in filtered:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Location: {location} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Location: {location} | Avg Rating: No ratings yet")
+
+            print_func("\nEnter any other key to return to Filter Menu")
+            input_func("")
+            continue
+
+        elif choice == "3":
+            # Filter by minimum rating
+            print_func("\nType '0' to cancel")
+            min_rating_input = input_func("Enter minimum rating (1-5): ").strip()
+
+            if min_rating_input == "0":
+                print_func("\nExiting Filtering Schools.")
+                return
+
+            if not min_rating_input.isdigit():
+                print_func("Error: Rating must be a number.")
+                continue
+
+            min_rating = int(min_rating_input)
+
+            if min_rating < 1 or min_rating > 5:
+                print_func("Error: Rating must be between 1 and 5.")
+                continue
+
+            averages = _calculate_average_ratings()
+
+            filtered = [
+                school for school in schools
+                if averages.get(str(school.get("school_id")), 0.0) >= min_rating
+            ]
+
+            if not filtered:
+                print_func(f"\nNo schools found with rating >= {min_rating}.")
+                continue
+
+            print_func(f"\n=== Schools with Rating >= {min_rating} ===")
+            print_func(f"Found {len(filtered)} school(s):\n")
+
+            for school in filtered:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: {avg:.2f}")
+
+            print_func("\nEnter any other key to return to Filter Menu")
+            input_func("")
             continue
 
         else:
@@ -370,186 +565,7 @@ def view_trending_schools(
             f"(ID {school.get('school_id')}) - "
             f"Activity Score: {score}"
         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
 
 def sort_schools_by_rating(
         input_func: Callable[[str], str] = input,
