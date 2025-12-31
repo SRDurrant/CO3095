@@ -14,6 +14,8 @@ User Stories included so far:
  - US4 - Delete School
  - US3 - Update School Details
  - US8 - Search Schools by Name
+ - US10 - Compare Two Schools
+
 
 """
 
@@ -71,6 +73,7 @@ def show_main_menu():
     print("6. View Top Schools by Category")
     print("7. Search for Schools")
     print("15. View Trending Schools")
+    print("17. Compare Two Schools)
 
     if current is not None and user_has_role(current, [ROLE_ADMIN]):
         print("8. Delete School (Admin Only)")
@@ -108,7 +111,7 @@ def main() -> None:
             show_main_menu()
             current = get_current_user()
 
-            allowed_options = ["1", "2", "4", "5", "6", "7", "15", "0"]
+            allowed_options = ["1", "2", "4", "5", "6", "7", "15", "17", "0"]
 
 
             if current is None:
@@ -233,6 +236,10 @@ def main() -> None:
                 if not check_access(current, [ROLE_ADMIN], print_func=print):
                     continue
                 view_top_contributors(print_func=print)
+
+            elif choice == "17":
+                # US10 - Compare Two Schools
+                compare_two_schools()
                 
             elif choice == "0":
 

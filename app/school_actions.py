@@ -6,6 +6,8 @@ Implements:
 - US6 - List All Schools
 - US7 - Filter Schools by Attributes
 - US8 - Search Schools by Name
+- US9 - Sort Schools by Rating
+- US10 - Compare Two Schools
 - US11 - View School Rankings for Each Category (Level)
 - US12 - Shows top-performing schools per category
 """
@@ -58,6 +60,7 @@ def list_all_schools(
 
         print_func("\n1. View School Profile")
         print_func("2. Filter Schools")
+        print_func("3. Sort Schools by Rating")
         print_func("0. Return to Main Menu")
 
         choice = input_func("Select an option: ").strip()
@@ -70,6 +73,9 @@ def list_all_schools(
 
         elif choice == "2":
             filter_schools(input_func, print_func)
+
+        elif choice == "3":
+            sort_schools_by_rating(input_func, print_func)
 
         else:
             print_func("Invalid option, please try again")
@@ -559,3 +565,278 @@ def view_trending_schools(
             f"(ID {school.get('school_id')}) - "
             f"Activity Score: {score}"
         )
+        
+
+def sort_schools_by_rating(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> None:
+    """
+    US9 - Sort Schools by Rating
+    As a user, I want to sort schools by highest or lowest rating for easy comparison.
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+    schools = get_schools()
+    averages = _calculate_average_ratings()
+
+    while True:
+        print_func("\n=== Sort Schools by Rating ===")
+        print_func("1. Highest to Lowest")
+        print_func("2. Lowest to Highest")
+        print_func("0. Return to Schools List")
+
+        choice = input_func("Select sort order: ").strip()
+
+        if choice == "0":
+            print_func("\nExiting Sort Schools.")
+            return
+
+        elif choice == "1":
+            # Sort highest to lowest
+            sorted_schools = sorted(
+                schools,
+                key=lambda s: averages.get(str(s.get("school_id")), 0.0),
+                reverse=True
+            )
+
+            print_func("\n=== Schools Sorted by Rating (Highest to Lowest) ===")
+            print_func(f"Found {len(sorted_schools)} school(s):\n")
+
+            for school in sorted_schools:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: No ratings yet")
+
+            print_func("\nEnter any other key to return to Sort Menu")
+            input_func("")
+            continue
+
+        elif choice == "2":
+            # Sort lowest to highest
+            sorted_schools = sorted(
+                schools,
+                key=lambda s: averages.get(str(s.get("school_id")), 0.0),
+                reverse=False
+            )
+
+            print_func("\n=== Schools Sorted by Rating (Lowest to Highest) ===")
+            print_func(f"Found {len(sorted_schools)} school(s):\n")
+
+            for school in sorted_schools:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: No ratings yet")
+
+            print_func("\nEnter any other key to return to Sort Menu")
+            input_func("")
+            continue
+
+        else:
+            print_func("Invalid option, please try again")
+
+
+def compare_two_schools(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> None:
+    """
+    US10 - Compare Two Schools
+    As a user, I want to compare two schools so I can view their differences
+    in rating and attributes.
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+    schools = get_schools()
+
+    if not schools:
+        print_func("\nNo schools found in the system.")
+        print_func("Press '0' to exit")
+        input_func("")
+        return
+
+    if len(schools) < 2:
+        print_func("\nAt least two schools are required for comparison.")
+        print_func("Press '0' to exit")
+        input_func("")
+        return
+
+    while True:
+        averages = _calculate_average_ratings()
+
+        print_func("\n=== Compare Two Schools ===")
+
+        # Display all schools
+        print_func("\nAvailable Schools:")
+        for school in schools:
+            school_id = school.get("school_id", "?")
+            name = school.get("name", "?")
+            print_func(f"ID: {school_id} | Name: {name}")
+
+        # Get first school
+        while True:
+            print_func("\nType '0' to exit")
+            school_id_1_input = input_func("Enter first school ID: ").strip()
+
+            if school_id_1_input == "0":
+                print_func("\nExiting School Comparison.")
+                return
+
+            if not school_id_1_input:
+                print_func("Error: School ID cannot be empty.")
+                continue
+
+            if not school_id_1_input.isdigit():
+                print_func("Error: School ID must be a number.")
+                continue
+
+            school_id_1 = int(school_id_1_input)
+
+            school_exists, error_msg = validate_school_id_exists(schools, school_id_1)
+            if not school_exists:
+                print_func(f"Error: {error_msg}")
+                continue
+
+            break
+
+        # Get second school
+        while True:
+            print_func("\nType '0' to exit")
+            school_id_2_input = input_func("Enter second school ID: ").strip()
+
+            if school_id_2_input == "0":
+                print_func("\nExiting School Comparison.")
+                return
+
+            if not school_id_2_input:
+                print_func("Error: School ID cannot be empty.")
+                continue
+
+            if not school_id_2_input.isdigit():
+                print_func("Error: School ID must be a number.")
+                continue
+
+            school_id_2 = int(school_id_2_input)
+
+            if school_id_2 == school_id_1:
+                print_func("Error: Please select a different school for comparison.")
+                continue
+
+            school_exists, error_msg = validate_school_id_exists(schools, school_id_2)
+            if not school_exists:
+                print_func(f"Error: {error_msg}")
+                continue
+
+            break
+
+        # Find both schools
+        school_1 = None
+        school_2 = None
+        for school in schools:
+            if school.get("school_id") == school_id_1:
+                school_1 = school
+            if school.get("school_id") == school_id_2:
+                school_2 = school
+
+        # Display comparison
+        print_func("\n=== School Comparison ===\n")
+
+        # School 1 details
+        name_1 = school_1.get("name", "?")
+        level_1 = school_1.get("level", "?")
+        location_1 = school_1.get("location", "?")
+        avg_1 = averages.get(str(school_id_1), 0.0)
+
+        print_func(f"School 1: {name_1}")
+        print_func(f"  ID: {school_id_1}")
+        print_func(f"  Level: {level_1.capitalize()}")
+        print_func(f"  Location: {location_1}")
+        if avg_1 > 0:
+            print_func(f"  Average Rating: {avg_1:.2f}")
+        else:
+            print_func(f"  Average Rating: No ratings yet")
+
+        print_func("")
+
+        # School 2 details
+        name_2 = school_2.get("name", "?")
+        level_2 = school_2.get("level", "?")
+        location_2 = school_2.get("location", "?")
+        avg_2 = averages.get(str(school_id_2), 0.0)
+
+        print_func(f"School 2: {name_2}")
+        print_func(f"  ID: {school_id_2}")
+        print_func(f"  Level: {level_2.capitalize()}")
+        print_func(f"  Location: {location_2}")
+        if avg_2 > 0:
+            print_func(f"  Average Rating: {avg_2:.2f}")
+        else:
+            print_func(f"  Average Rating: No ratings yet")
+
+        print_func("\n=== Comparison Summary ===")
+
+        # Compare levels
+        if level_1 == level_2:
+            print_func(f"Both schools are {level_1} level.")
+        else:
+            print_func(f"{name_1} is {level_1} level, while {name_2} is {level_2} level.")
+
+        # Compare locations
+        if location_1 == location_2:
+            print_func(f"Both schools are located in {location_1}.")
+        else:
+            print_func(f"{name_1} is in {location_1}, while {name_2} is in {location_2}.")
+
+        # Compare ratings
+        if avg_1 > 0 and avg_2 > 0:
+            if avg_1 > avg_2:
+                diff = avg_1 - avg_2
+                print_func(f"{name_1} has a higher rating ({avg_1:.2f}) than {name_2} ({avg_2:.2f}) by {diff:.2f} points.")
+            elif avg_2 > avg_1:
+                diff = avg_2 - avg_1
+                print_func(f"{name_2} has a higher rating ({avg_2:.2f}) than {name_1} ({avg_1:.2f}) by {diff:.2f} points.")
+            else:
+                print_func(f"Both schools have the same rating ({avg_1:.2f}).")
+        elif avg_1 > 0:
+            print_func(f"{name_1} has a rating of {avg_1:.2f}, while {name_2} has no ratings yet.")
+        elif avg_2 > 0:
+            print_func(f"{name_2} has a rating of {avg_2:.2f}, while {name_1} has no ratings yet.")
+        else:
+            print_func("Neither school has ratings yet.")
+
+        print_func("\n1. Compare Another Pair")
+        print_func("Enter any other key to return to Main Menu.")
+
+        choice = input_func("Select an option: ").strip()
+
+        if choice == "1":
+            continue
+        else:
+            print_func("returning to Main Menu.")
+            return
