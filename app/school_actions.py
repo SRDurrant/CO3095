@@ -4,7 +4,9 @@ For school-related actions for the system
 Implements:
 - US5 - View School Profile
 - US6 - List All Schools
+
 - US8 - Search Schools by Name
+- US9 - Sort Schools by Rating
 - US11 - View School Rankings for Each Category (Level)
 - US12 - Shows top-performing schools per category
 """
@@ -50,6 +52,8 @@ def list_all_schools(
             print_func(f"ID: {school_id} | Name: {name}")
 
         print_func("\n1. View School Profile")
+
+        print_func("3. Sort Schools by Rating")
         print_func("0. Return to Main Menu")
 
         choice = input_func("Select an option: ").strip()
@@ -59,6 +63,12 @@ def list_all_schools(
 
         elif choice == "1":
             view_school_profile(input_func, print_func)
+
+
+
+
+        elif choice == "3":
+            sort_schools_by_rating(input_func, print_func)
 
         else:
             print_func("Invalid option, please try again")
@@ -359,3 +369,271 @@ def view_trending_schools(
             f"(ID {school.get('school_id')}) - "
             f"Activity Score: {score}"
         )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def sort_schools_by_rating(
+        input_func: Callable[[str], str] = input,
+        print_func: Callable[[str], None] = print
+) -> None:
+    """
+    US9 - Sort Schools by Rating
+    As a user, I want to sort schools by highest or lowest rating for easy comparison.
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to get user input
+        print_func (Callable[[str], None]): Function used to print output (for testing)
+
+    Returns:
+        None
+    """
+
+    schools = get_schools()
+    averages = _calculate_average_ratings()
+
+    while True:
+        print_func("\n=== Sort Schools by Rating ===")
+        print_func("1. Highest to Lowest")
+        print_func("2. Lowest to Highest")
+        print_func("0. Return to Schools List")
+
+        choice = input_func("Select sort order: ").strip()
+
+        if choice == "0":
+            print_func("\nExiting Sort Schools.")
+            return
+
+        elif choice == "1":
+            # Sort highest to lowest
+            sorted_schools = sorted(
+                schools,
+                key=lambda s: averages.get(str(s.get("school_id")), 0.0),
+                reverse=True
+            )
+
+            print_func("\n=== Schools Sorted by Rating (Highest to Lowest) ===")
+            print_func(f"Found {len(sorted_schools)} school(s):\n")
+
+            for school in sorted_schools:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: No ratings yet")
+
+            print_func("\nEnter any other key to return to Sort Menu")
+            input_func("")
+            continue
+
+        elif choice == "2":
+            # Sort lowest to highest
+            sorted_schools = sorted(
+                schools,
+                key=lambda s: averages.get(str(s.get("school_id")), 0.0),
+                reverse=False
+            )
+
+            print_func("\n=== Schools Sorted by Rating (Lowest to Highest) ===")
+            print_func(f"Found {len(sorted_schools)} school(s):\n")
+
+            for school in sorted_schools:
+                school_id = school.get("school_id", "?")
+                name = school.get("name", "?")
+                level = school.get("level", "?")
+                location = school.get("location", "?")
+                avg = averages.get(str(school_id), 0.0)
+
+                if avg > 0:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: {avg:.2f}")
+                else:
+                    print_func(f"ID: {school_id} | Name: {name} | Level: {level.capitalize()} | Location: {location} | Avg Rating: No ratings yet")
+
+            print_func("\nEnter any other key to return to Sort Menu")
+            input_func("")
+            continue
+
+        else:
+            print_func("Invalid option, please try again")
