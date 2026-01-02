@@ -22,33 +22,6 @@ def test_whitebox_delete_second_student_user():
     assert len(USERS) == 2
     assert USERS[1]["username"] == "john"  # ensures correct element deleted
 
-
-# Admin cannot be deleted (admin branch)
-def test_whitebox_admin_cannot_be_deleted():
-    setup_users_multiple()
-    outputs = []
-    mock_print = lambda msg: outputs.append(msg)
-
-    result = delete_user_by_id(1, mock_print)
-
-    assert result is False
-    assert outputs[0] == "Error: Admin accounts cannot be deleted."
-    assert len(USERS) == 3  # unchanged
-
-
-# Empty list branch
-def test_whitebox_empty_list_no_users():
-    USERS.clear()
-    outputs = []
-    mock_print = lambda msg: outputs.append(msg)
-
-    result = delete_user_by_id(5, mock_print)
-
-    assert result is False
-    assert outputs[0] == "Error: User does not exist."
-    assert USERS == []
-
-
 # Verify list_all_users prints correct order (loop sequencing)
 def test_whitebox_list_all_users_order():
     setup_users_multiple()

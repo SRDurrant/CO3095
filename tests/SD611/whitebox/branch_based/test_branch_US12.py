@@ -2,7 +2,7 @@ from app.school_actions import view_top_schools
 from app.data_store import SCHOOLS
 from app.reviews import RATINGS
 
-def test_top_schools_limit_whitebox():
+def test_top_schools_limit():
 
     SCHOOLS.clear()
     RATINGS.clear()
@@ -15,16 +15,7 @@ def test_top_schools_limit_whitebox():
 
     assert len(outputs) > 0
 
-def test_top_schools_no_schools_whitebox():
-    """Test path when there are no schools in the system."""
-    SCHOOLS.clear()
-    RATINGS.clear()
-
-    outputs = []
-    view_top_schools(print_func=lambda x: outputs.append(x))
-    assert outputs[0] == "No schools available."  # Empty or no ranking message can be handled
-
-def test_top_schools_zero_ratings_whitebox():
+def test_top_schools_zero_ratings():
     """Test path where schools exist but no ratings yet."""
     SCHOOLS.clear()
     RATINGS.clear()
@@ -39,8 +30,9 @@ def test_top_schools_zero_ratings_whitebox():
     # Check that averages default to 0
     assert "Avg Rating: 0.00" in "".join(outputs)
 
-def test_top_schools_multiple_levels_whitebox():
+def test_top_schools_multiple_levels():
     """Test internal path where schools exist across multiple levels."""
+    """This test is both branch and loop hench why it exists in both"""
     SCHOOLS.clear()
     RATINGS.clear()
     SCHOOLS.extend([

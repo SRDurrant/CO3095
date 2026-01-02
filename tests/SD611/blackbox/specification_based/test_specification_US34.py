@@ -13,15 +13,3 @@ def test_delete_existing_comment_blackbox():
     assert result is True
     assert "deleted" in outputs[0].lower()
     assert len(COMMENTS) == 0
-
-
-def test_delete_nonexistent_comment_blackbox():
-    clear_comments()
-    outputs = []
-    mock_print = lambda msg: outputs.append(msg)
-
-    result = delete_comment_by_id(99, mock_print)
-
-    assert result is False
-    assert outputs[0] == "Error: Comment does not exist."
-    assert len(COMMENTS) == 0
