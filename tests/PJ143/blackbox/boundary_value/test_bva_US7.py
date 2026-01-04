@@ -10,6 +10,7 @@ from app.reviews import RATINGS
 
 
 def run_filter_schools(inputs):
+    """Captures ouptut of filter schools function by simulating user inputs"""
     inputs_iter = iter(inputs)
     outputs = []
 
