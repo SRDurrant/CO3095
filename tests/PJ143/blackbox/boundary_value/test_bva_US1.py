@@ -41,6 +41,7 @@ def test_add_secondary_school():
 
 
 def test_add_combined_school():
+    """Adding a valid combined level school"""
     SCHOOLS.clear()
     inputs = iter(["Combined School", "3", "Derby", "2"])
 
@@ -129,6 +130,7 @@ def test_duplicate_school_rejected():
 
 
 def test_exit_at_name_prompt():
+    """Exits at name prompt"""
     SCHOOLS.clear()
     result = add_new_school(lambda _: "0", lambda _: None)
 
@@ -137,6 +139,7 @@ def test_exit_at_name_prompt():
 
 
 def test_exit_at_level():
+    """Exits at level choice prompt"""
     SCHOOLS.clear()
     inputs = iter(["Test School", "0"])
 
@@ -146,6 +149,7 @@ def test_exit_at_level():
 
 
 def test_exit_at_location():
+    """Exits at location prompt"""
     SCHOOLS.clear()
     inputs = iter(["Test School", "1", "0"])
     result = add_new_school(lambda _: next(inputs), lambda _: None)
@@ -169,6 +173,7 @@ def test_add_multiple_schools():
 
 
 def test_add_one_then_exit():
+    """Adding school successfully then exiting"""
     SCHOOLS.clear()
     inputs = iter(["Single School", "1", "Location", "0"])
 
