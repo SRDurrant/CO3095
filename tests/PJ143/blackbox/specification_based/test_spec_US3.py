@@ -169,7 +169,7 @@ def test_update_multiple_schools():
 
     assert result == True
     assert SCHOOLS[0]["name"] == "AWAW A"
-    assert SCHOOLS[1]["name"] == "Uio B"
+    assert SCHOOLS[1]["name"] == "MMMM B"
 
 
 def test_invalid_name_then_retry():
