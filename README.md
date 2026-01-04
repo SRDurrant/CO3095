@@ -33,7 +33,7 @@ The system supports authentication, school browsing and search, ratings and revi
    cd Desktop
 3. Clone the respository:
     ```bash
-   git clone <github link>
+   git clone https://github.com/SRDurrant/CO3095.git
 4. Enter the project directory:
     ```bash
    cd SM&QA_Project
@@ -192,6 +192,8 @@ htmlcov/index.html
 You may safely delete the JSON file between runs to reset the system state
 
 ## 10. Public GitHub Repository
+
+https://github.com/SRDurrant/CO3095.git
 
 Contains:
 - full source code
