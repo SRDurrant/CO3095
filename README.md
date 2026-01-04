@@ -81,10 +81,7 @@ pip install pytest coverage
 ```
 
 ## 5. Running the Application
-From the project root:
-```bash
-python main.py
-```
+Go onto the main.py file, there should be __main__ at the bottom of the file. This should then run the main system.
 
 ## 6. Running all test cases
 To run every test in the project:
