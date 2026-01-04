@@ -20,6 +20,7 @@ def generate_random_string(length):
 
 def test_random_valid_names():
     """Test with random valid names"""
+     random.seed(50)
 
     for _ in range(5):
         name = generate_random_string(random.randint(5, 20))
@@ -29,6 +30,7 @@ def test_random_valid_names():
 
 def test_random_invalid_names():
     """Test with random invalid names (too short)"""
+     random.seed(100)
 
     for _ in range(5):
         name = generate_random_string(random.randint(1, 4))
@@ -38,6 +40,7 @@ def test_random_invalid_names():
 
 def test_random_valid_locations():
     """Test with random valid locations"""
+    random.seed(200)
 
     for _ in range(5):
         location = generate_random_string(random.randint(3, 15))
@@ -47,6 +50,7 @@ def test_random_valid_locations():
 
 def test_random_level_choices():
     """Test random valid level choices"""
+     random.seed(300)
 
     for _ in range(10):
         level = str(random.randint(1, 3))
@@ -56,6 +60,7 @@ def test_random_level_choices():
 
 def test_random_invalid_levels():
     """Test random invalid level choices"""
+     random.seed(400)
 
     invalid_choices = ["4", "5", "10", "abc", ""]
     for choice in invalid_choices:
