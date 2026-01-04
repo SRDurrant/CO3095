@@ -363,10 +363,12 @@ def update_school_by_id(
                     print_func("\nExiting School Updating.")
                     return updated_any
 
+                # Keeps current name
                 if new_name == "":
                     new_name = current_name
                     break
 
+                # Update with new name
                 is_valid_name, err_msg_name = validate_school_name(new_name)
                 if not is_valid_name:
                     print_func(f"Error: {err_msg_name}")
@@ -392,10 +394,12 @@ def update_school_by_id(
                     print_func("\nExiting School Updating.")
                     return updated_any
 
+                # Keep current level
                 if level_input == "":
                     level_input = "1" if current_level == "primary" else "2" if current_level == "secondary" else "3"
                     break
 
+                #Validates level input
                 is_valid_level, err_msg_level = validate_school_level(level_input)
                 if not is_valid_level:
                     print_func(f"Error: {err_msg_level}")
