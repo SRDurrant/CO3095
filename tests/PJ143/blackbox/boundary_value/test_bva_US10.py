@@ -10,6 +10,7 @@ from app.reviews import RATINGS
 
 
 def run_compare_schools(inputs):
+    """Captures output of compare two schools function"""
     inputs_iter = iter(inputs)
     outputs = []
 
@@ -33,7 +34,7 @@ def test_exactly_two_schools():
 
 
 def test_exactly_one_school():
-    """Just below minimum"""
+    """Below minimum amount of schools needed"""
     SCHOOLS.clear()
     SCHOOLS.append({"school_id": 1, "name": "School A", "level": "primary", "location": "London"})
 
