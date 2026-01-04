@@ -37,7 +37,7 @@ def test_location_length_2_invalid():
 
 
 def test_location_length_3_valid():
-    """Boundary: 3 characters is minimum valid"""
+    """Boundary: 3 characters is minimum valid length"""
     is_valid, msg = validate_school_location("ABC")
 
     assert is_valid is True
