@@ -18,21 +18,55 @@ FAVOURITES: List[Dict] = []
 
 
 def clear_ratings() -> None:
+    """
+    Clears all stored ratings (test helper).
+
+    Inputs:
+        None
+
+    Returns:
+        None
+    """
     RATINGS.clear()
 
 
 def clear_comments() -> None:
+    """
+    Clears all stored comments (test helper).
+
+    Inputs:
+        None
+
+    Returns:
+        None
+    """
     COMMENTS.clear()
 
 
 def clear_favourites() -> None:
     """
     Clears all favourites (test helper).
+
+    Inputs:
+        None
+
+    Returns:
+        None
     """
     FAVOURITES.clear()
 
 
 def find_rating(user_id: int, school_id: str) -> Optional[Dict]:
+    """
+    Finds an existing rating for a given (user, school) pair.
+
+    Inputs:
+        user_id (int): ID of the user who created the rating
+        school_id (str): ID of the school being rated
+
+    Returns:
+        Optional[Dict]: The rating dict if found, otherwise None
+    """
     for rating in RATINGS:
         if rating.get("user_id") == user_id and rating.get("school_id") == school_id:
             return rating
@@ -40,6 +74,17 @@ def find_rating(user_id: int, school_id: str) -> Optional[Dict]:
 
 
 def set_rating(user_id: int, school_id: str, value: int) -> Dict:
+    """
+    Creates or updates a rating for a given (user, school) pair.
+
+    Inputs:
+        user_id (int): ID of the user submitting the rating
+        school_id (str): ID of the school being rated
+        value (int): Rating value to store (e.g., 1-5)
+
+    Returns:
+        Dict: The created or updated rating dict
+    """
     existing = find_rating(user_id, school_id)
     if existing is not None:
         existing["value"] = value
@@ -60,6 +105,18 @@ def add_comment_record(
     text: str,
     created_at: Optional[datetime] = None,
 ) -> Dict:
+    """
+    Creates and stores a comment record for a given school.
+
+    Inputs:
+        user_id (int): ID of the user submitting the comment
+        school_id (str): ID of the school being commented on
+        text (str): Comment text
+        created_at (Optional[datetime]): Timestamp to store; defaults to current UTC time if None
+
+    Returns:
+        Dict: The created comment dict
+    """
     if created_at is None:
         created_at = datetime.now(timezone.utc)
 
@@ -76,6 +133,13 @@ def add_comment_record(
 def find_favourite(user_id: int, school_id: str) -> Optional[Dict]:
     """
     Returns a favourite record if it exists for a (user, school) pair.
+
+    Inputs:
+        user_id (int): ID of the user
+        school_id (str): ID of the school
+
+    Returns:
+        Optional[Dict]: The favourite dict if found, otherwise None
     """
     for fav in FAVOURITES:
         if fav.get("user_id") == user_id and fav.get("school_id") == school_id:
@@ -90,6 +154,14 @@ def add_favourite_record(
 ) -> Dict:
     """
     Creates and stores a favourite record.
+
+    Inputs:
+        user_id (int): ID of the user
+        school_id (str): ID of the school to favourite
+        created_at (Optional[datetime]): Timestamp to store; defaults to current UTC time if None
+
+    Returns:
+        Dict: The created favourite dict
     """
     if created_at is None:
         created_at = datetime.now(timezone.utc)
@@ -105,7 +177,14 @@ def add_favourite_record(
 
 def remove_favourite_record(user_id: int, school_id: str) -> bool:
     """
-    Removes an existing favourite record. Returns True if removed, False if not found.
+    Removes an existing favourite record for a (user, school) pair.
+
+    Inputs:
+        user_id (int): ID of the user
+        school_id (str): ID of the school to remove from favourites
+
+    Returns:
+        bool: True if a record was removed, False if not found
     """
     for i, fav in enumerate(FAVOURITES):
         if fav.get("user_id") == user_id and fav.get("school_id") == school_id:
@@ -118,6 +197,18 @@ def rate_school(
     input_func: Callable[[str], str] = input,
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
+    """
+    Prompts the current user to rate a school and stores the result (US14).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if rating was stored, False otherwise
+            - object: Rating dict on success, or a message string on failure/cancel
+    """
     current_user = get_current_user()
     if current_user is None:
         msg = "You must be logged in to rate a school"
@@ -166,6 +257,19 @@ def add_comment(
     print_func: Callable[[str], None] = print,
     max_length: int = 500,
 ) -> Tuple[bool, object]:
+    """
+    Prompts the current user to add a comment to a school and stores it (US15).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+        max_length (int): Maximum allowed comment length
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if comment was stored, False otherwise
+            - object: Comment dict on success, or a message string on failure/cancel
+    """
     current_user = get_current_user()
     if current_user is None:
         msg = "You must be logged in to add a comment"
@@ -221,6 +325,16 @@ def add_comment(
 
 
 def get_comments_for_school(school_id: str, newest_first: bool = True) -> List[Dict]:
+    """
+    Retrieves comments for a specific school, optionally sorted by recency.
+
+    Inputs:
+        school_id (str): ID of the school to retrieve comments for
+        newest_first (bool): If True, newest comments appear first
+
+    Returns:
+        List[Dict]: List of comment dicts matching the school_id
+    """
     matching = [c for c in COMMENTS if c.get("school_id") == school_id]
     matching.sort(key=lambda c: c["created_at"], reverse=newest_first)
     return matching
@@ -230,6 +344,18 @@ def view_comments_for_school(
     input_func: Callable[[str], str] = input,
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
+    """
+    Prompts for a school ID and displays its comments to the user (US18).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if the flow completed, False if cancelled/invalid
+            - object: List of comments on success, or a message string on failure/cancel
+    """
     print_func("\nView Comments for a School")
     print_func("Type '0' to return to the previous menu.")
     school_id = input_func("Enter the school ID to view comments: ").strip()
@@ -259,14 +385,31 @@ def view_comments_for_school(
 
 def get_user_comments_for_school(user_id: int, school_id: str) -> List[Dict]:
     """
-    Return comments for a specific (user, school) pair.
+    Returns comments for a specific (user, school) pair.
+
+    Inputs:
+        user_id (int): ID of the user who created the comments
+        school_id (str): ID of the school the comments relate to
+
+    Returns:
+        List[Dict]: List of comment dicts matching the (user_id, school_id) pair
     """
     return [c for c in COMMENTS if c.get("user_id") == user_id and c.get("school_id") == school_id]
 
 
 def edit_comment_record(comment: Dict, new_text: str, max_length: int = 500) -> Tuple[bool, str]:
     """
-    Edit the text of a specific comment dict with basic validation.
+    Edits the text of a specific comment dict with basic validation.
+
+    Inputs:
+        comment (Dict): The comment dict to update
+        new_text (str): Replacement comment text
+        max_length (int): Maximum allowed comment length
+
+    Returns:
+        Tuple[bool, str]:
+            - bool: True if updated, False otherwise
+            - str: "OK" on success, or an error message on failure
     """
     if new_text is None:
         return False, "Comment cannot be empty."
@@ -290,7 +433,17 @@ def edit_my_comment(
     max_length: int = 500,
 ) -> Tuple[bool, object]:
     """
-    US16 - Edit My Comment
+    Allows the current user to select and edit one of their comments (US16).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+        max_length (int): Maximum allowed comment length
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if edited, False otherwise
+            - object: Updated comment dict on success, or message/list on failure/empty/cancel
     """
     current_user = get_current_user()
     if current_user is None:
@@ -366,7 +519,13 @@ def edit_my_comment(
 
 def get_average_rating_for_school(school_id: str) -> Optional[float]:
     """
-    US19 helper: compute average rating for a school.
+    Computes the average rating for a given school (US19 helper).
+
+    Inputs:
+        school_id (str): ID of the school to compute average for
+
+    Returns:
+        Optional[float]: Average rating if ratings exist, otherwise None
     """
     matching = [r for r in RATINGS if r.get("school_id") == school_id]
     if not matching:
@@ -381,7 +540,16 @@ def view_average_rating_for_school(
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
     """
-    US19 - View Average Rating for a School
+    Prompts for a school ID and displays its average rating (US19).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if the flow completed, False if cancelled/invalid
+            - object: Average (float/None) on success, or message string on failure/cancel
     """
     print_func("\nView Average Rating for a School")
     print_func("Type '0' to return to the previous menu.")
@@ -412,7 +580,13 @@ def view_average_rating_for_school(
 
 def delete_comment_record(comment: Dict) -> Dict:
     """
-    Delete a specific comment dict from COMMENTS.
+    Deletes a specific comment dict from the global COMMENTS list.
+
+    Inputs:
+        comment (Dict): The comment dict to remove
+
+    Returns:
+        Dict: The removed comment dict
     """
     COMMENTS.remove(comment)
     return comment
@@ -423,7 +597,16 @@ def delete_my_comment(
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
     """
-    US17 - Delete My Comment
+    Allows the current user to select and delete one of their comments (US17).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if deleted, False otherwise
+            - object: Deleted comment dict on success, or message/list on failure/empty/cancel
     """
     current_user = get_current_user()
     if current_user is None:
@@ -485,13 +668,25 @@ def delete_my_comment(
 def get_favourites_for_user(user_id: int) -> List[Dict]:
     """
     Returns all favourite records for a given user.
+
+    Inputs:
+        user_id (int): ID of the user to retrieve favourites for
+
+    Returns:
+        List[Dict]: List of favourite dicts for the given user_id
     """
     return [f for f in FAVOURITES if f.get("user_id") == user_id]
 
 
 def _find_school_name(school_id: str) -> Optional[str]:
     """
-    Best-effort helper to show school name if SCHOOLS is populated.
+    Looks up a school name in SCHOOLS for display purposes.
+
+    Inputs:
+        school_id (str): ID of the school to search for
+
+    Returns:
+        Optional[str]: School name if found, otherwise None
     """
     for s in SCHOOLS:
         if str(s.get("school_id")) == str(school_id):
@@ -504,7 +699,16 @@ def remove_favourite_school(
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
     """
-    US27 - Remove Favourite School
+    Prompts the current user to remove a school from favourites (US27).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if the flow completed, False if cancelled/blocked
+            - object: True/False on removal result, or a message string on failure/cancel
     """
     current_user = get_current_user()
     if current_user is None:
@@ -542,7 +746,16 @@ def favourite_school(
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
     """
-    US26 - Favourite a School
+    Prompts the current user to favourite a school (US26).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if favourited (or already favourited), False if cancelled/blocked
+            - object: Favourite dict on success, or message string on failure/cancel
     """
     current_user = get_current_user()
     if current_user is None:
@@ -587,7 +800,16 @@ def view_favourite_schools(
     print_func: Callable[[str], None] = print,
 ) -> Tuple[bool, object]:
     """
-    US28 - View Favourite Schools
+    Displays the current user's favourite schools (US28).
+
+    Inputs:
+        input_func (Callable[[str], str]): Function used to collect user input
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        Tuple[bool, object]:
+            - bool: True if the flow completed, False if cancelled/blocked
+            - object: List of favourites on success, or message string on failure/cancel
     """
     current_user = get_current_user()
     if current_user is None:

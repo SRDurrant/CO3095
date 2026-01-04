@@ -538,9 +538,14 @@ def view_trending_schools(
     print_func: Callable[[str], None] = print,
 ):
     """
-    US36 – View Trending Schools based on review activity.
+    Displays trending schools based on review activity (US36).
 
-    Trending score = number of ratings + number of comments.
+    Inputs:
+        limit (int): Maximum number of trending schools to display
+        print_func (Callable[[str], None]): Function used to print output/messages
+
+    Returns:
+        None
     """
 
     if not SCHOOLS:

@@ -494,6 +494,12 @@ def delete_comment_by_id(
 def view_system_statistics(print_func=print) -> None:
     """
     US35 – Admin views system-wide statistics
+
+    Inputs:
+        print_func (Any): print_func parameter
+
+    Returns:
+        None
     """
 
     print_func("\n=== System Statistics ===")
@@ -509,7 +515,9 @@ def view_top_contributors(
     """
     US37 – View users who contribute the most reviews/comments.
 
-    Contribution score = number of ratings + number of comments.
+    Inputs:
+    limit (int): number of users to return
+    print_func (Callable[[str], None]): print_func parameter
     """
 
     users = get_users()
@@ -557,6 +565,9 @@ def get_top_schools_summary(limit: int = 3):
     """
     Builds a structured summary of top schools per level.
 
+    Inputs:
+        limit (int): number of users to return
+
     Returns:
         Dict[str, List[Tuple[school_dict, avg_rating]]]
     """
@@ -583,6 +594,11 @@ def export_top_schools_report(
     US13 – Export Top Schools Summary Report
 
     Writes a human-readable text report of top schools per category.
+
+    Inputs:
+        file_path (str): path to file to write
+        limit (int): number of users to return
+        print_func (Callable[[str], None]): print_func parameter
 
     Returns:
         bool: True if export successful, False otherwise

@@ -30,6 +30,8 @@ def add_user(user: Dict) -> None:
             "password": str,
             "role": str
             }
+    Returns:
+        None
     """
 
     USERS.append(user)
@@ -116,6 +118,9 @@ def get_schools() -> List[Dict]:
     """
     Returns a list of all schools in the global list of schools
 
+    Inputs:
+        None
+
     Returns:
          List[Dict]: A list of all schools in the global list of schools
     """
@@ -135,6 +140,9 @@ def add_school(school: Dict) -> None:
             "level": str,
             "location": str
             }
+
+    Returns:
+        None
     """
 
     SCHOOLS.append(school)

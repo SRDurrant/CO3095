@@ -5,7 +5,13 @@ LOG_FILE = "system.log"
 
 def log_event(message: str) -> None:
     """
-    Logs a normal system event (info-level).
+    Writes an info-level system event message to the log file.
+
+    Inputs:
+        message (str): Message to be logged
+
+    Returns:
+        None
     """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -14,7 +20,13 @@ def log_event(message: str) -> None:
 
 def log_error(message: str) -> None:
     """
-    Logs an error event.
+    Writes an error-level system message to the log file.
+
+    Inputs:
+        message (str): Message to be logged as an error
+
+    Returns:
+        None
     """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(LOG_FILE, "a", encoding="utf-8") as f:
